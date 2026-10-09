@@ -1,32 +1,29 @@
-# React + TypeScript + Vite
+# Forma AI – Entrena en casa
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+App para el móvil (PWA) con rutinas guiadas, un muñeco animado que hace cada ejercicio, voz, gráficas de progreso y un plan personalizado con Gemini que se adapta después de cada entreno.
 
-Currently, two official plugins are available:
+Todos los datos se guardan en el propio teléfono. No hay servidor ni base de datos.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Instalarla en Android
 
-## React Compiler
+1. En GitHub: **Settings → Pages → Source: GitHub Actions** (solo la primera vez).
+2. Sube los cambios a `main`. El workflow `.github/workflows/deploy.yml` la publica en
+   `https://<tu-usuario>.github.io/<nombre-del-repo>/`.
+3. Abre esa dirección en Chrome en el móvil → menú ⋮ → **Instalar aplicación** (o "Añadir a pantalla de inicio").
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Clave de Gemini (gratis)
 
-## Expanding the Oxlint configuration
+1. Entra en https://aistudio.google.com/apikey y crea una clave.
+2. Pégala en la app (al empezar o en **Ajustes**). Se guarda solo en tu teléfono.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+Sin clave la app funciona igual con un plan básico calculado en el propio móvil.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Desarrollo
+
+```bash
+npm install
+npm run dev      # servidor local
+npm run build    # compilación de producción
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Las calorías, proteínas y plazos son estimaciones orientativas, no consejo médico.

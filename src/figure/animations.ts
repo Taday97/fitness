@@ -158,14 +158,14 @@ export const ANIMS: Record<string, Anim> = {
     view: 'side', anchor: 'feet', props: ['mat'],
     frames: [
       hold(PLANK_HIGH, 1000),
-      hold({ torso: 96, ua: [-117, -117], fa: [30, 30], th: [-84, -84], sh: [-84, -84] }, 1000),
+      hold({ torso: 100, ua: [-60, -60], fa: [44, 44], th: [-80, -80], sh: [-80, -80] }, 1000),
     ],
   },
   knee_pushups: {
     view: 'side', anchor: 'feet', props: ['mat'],
     frames: [
       hold({ torso: 126.5, ua: [0, 0], fa: [0, 0], th: [-53.5, -53.5], sh: [-100, -100], foot: [-100, -100] }, 1000),
-      hold({ torso: 98, ua: [-117, -117], fa: [30, 30], th: [-82, -82], sh: [-100, -100], foot: [-100, -100] }, 1000),
+      hold({ torso: 108, ua: [-60, -60], fa: [36, 36], th: [-72, -72], sh: [-100, -100], foot: [-100, -100] }, 1000),
     ],
   },
   plank: {
@@ -285,8 +285,8 @@ export const ANIMS: Record<string, Anim> = {
   stretch_quad: {
     view: 'side', anchor: 'farFoot',
     frames: [
-      hold({ torso: 180, ua: [-25, 85], fa: [12, 88], th: [-4, 0], sh: [-175, 0] }, 1800),
-      hold({ torso: 182, ua: [-25, 88], fa: [12, 90], th: [-7, 0], sh: [-176, 0] }, 1800),
+      hold({ torso: 180, ua: [-25, 85], fa: [-8, 88], th: [-15, 0], sh: [-170, 0] }, 1800),
+      hold({ torso: 182, ua: [-27, 88], fa: [-10, 90], th: [-18, 0], sh: [-172, 0] }, 1800),
     ],
   },
   stretch_hamstring: {
