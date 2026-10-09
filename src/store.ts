@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { CheckIn, Plan, Profile, Routine, Session, Settings } from './types'
-import { DEFAULT_MODEL } from './lib/gemini'
+import { DEFAULT_MODEL, setModelListener } from './lib/gemini'
 import { weekday } from './lib/utils'
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -86,11 +86,16 @@ export const useStore = create<State>()(
       version: 1,
       merge: (persisted, current) => {
         const p = persisted as Partial<State>
-        return { ...current, ...p, settings: { ...DEFAULT_SETTINGS, ...p?.settings } }
+        const settings = { ...DEFAULT_SETTINGS, ...p?.settings }
+        // gemini-2.5-flash ya no está disponible para claves nuevas
+        if (settings.model === 'gemini-2.5-flash') settings.model = DEFAULT_MODEL
+        return { ...current, ...p, settings }
       },
     },
   ),
 )
+
+setModelListener((model) => useStore.getState().setSettings({ model }))
 
 /** Todas las rutinas: las propias primero (sus días tienen prioridad). */
 export const useRoutines = () => {

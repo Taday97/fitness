@@ -338,7 +338,7 @@ export default function Onboarding() {
               </a>
             </Card>
             <Field label="Tu clave de Gemini" hint="Se guarda solo en tu teléfono. Nunca se sube a GitHub.">
-              <input className={inputCls} value={key} onChange={(e) => setKey(e.target.value)} placeholder="AIza…" autoComplete="off" spellCheck={false} />
+              <input className={inputCls} value={key} onChange={(e) => setKey(e.target.value)} placeholder="AQ.… o AIza…" autoComplete="off" spellCheck={false} />
             </Field>
             {error && <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
           </div>

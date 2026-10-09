@@ -87,7 +87,7 @@ export default function SettingsScreen() {
                 autoComplete="off"
                 value={key}
                 onChange={(e) => setKey(e.target.value)}
-                placeholder="AIza…"
+                placeholder="AQ.… o AIza…"
                 className={inputCls}
               />
             </Field>

@@ -4,9 +4,20 @@ import { bmi, localNutrition, localWeeksEstimate } from './nutrition'
 import { DAYS, clamp, uid } from './utils'
 
 const API = 'https://generativelanguage.googleapis.com/v1beta'
-export const DEFAULT_MODEL = 'gemini-2.5-flash'
+// Alias que Google mantiene apuntando al Flash estable más reciente
+export const DEFAULT_MODEL = 'gemini-flash-latest'
 
-export class GeminiError extends Error {}
+export class GeminiError extends Error {
+  status?: number
+  constructor(message: string, status?: number) {
+    super(message)
+    this.status = status
+  }
+}
+
+// El store se registra aquí para guardar el modelo elegido automáticamente (evita una importación circular)
+let onModelResolved: (model: string) => void = () => {}
+export const setModelListener = (fn: (model: string) => void) => (onModelResolved = fn)
 
 async function call(path: string, key: string, body?: unknown) {
   let res: Response
@@ -25,9 +36,9 @@ async function call(path: string, key: string, body?: unknown) {
     if (res.status === 429) throw new GeminiError('Has llegado al límite gratuito de Gemini por ahora. Espera un minuto y vuelve a intentarlo.')
     if (res.status === 400 && /api key/i.test(msg)) throw new GeminiError('La clave de Gemini no es válida. Revísala en Ajustes.')
     if (res.status === 403) throw new GeminiError('La clave no tiene permiso para usar Gemini. Crea una nueva en Google AI Studio.')
-    if (res.status === 404) throw new GeminiError('Ese modelo de Gemini no existe. Elige otro en Ajustes.')
+    if (res.status === 404) throw new GeminiError('Ese modelo de Gemini no está disponible para tu clave. Elige otro en Ajustes.', 404)
     if (res.status === 503) throw new GeminiError('Gemini está saturado ahora mismo. Inténtalo de nuevo en unos segundos.')
-    throw new GeminiError(`Error de Gemini (${res.status}): ${msg}`)
+    throw new GeminiError(`Error de Gemini (${res.status}): ${msg}`, res.status)
   }
   return data
 }
@@ -42,13 +53,33 @@ export async function listModels(key: string): Promise<string[]> {
     .sort((a: string, b: string) => (b.includes('flash') ? 1 : 0) - (a.includes('flash') ? 1 : 0) || b.localeCompare(a))
 }
 
+/** El mejor modelo para la app: Flash estable (ni preview ni lite) de la versión más alta. */
+export function pickModel(models: string[]): string | undefined {
+  const ver = (m: string) => parseFloat(m.match(/gemini-(d+(?:.d+)?)/)?.[1] ?? '0')
+  const score = (m: string) =>
+    (m.includes('flash') ? 4 : 0) + (/preview|exp/.test(m) ? 0 : 2) + (m.includes('lite') ? 0 : 1)
+  return [...models].sort((a, b) => score(b) - score(a) || ver(b) - ver(a))[0]
+}
+
 async function generateJSON<T>(s: Settings, system: string, prompt: string, schema: object): Promise<T> {
   if (!s.apiKey) throw new GeminiError('Falta la clave de Gemini. Añádela en Ajustes.')
-  const data = await call(`models/${s.model || DEFAULT_MODEL}:generateContent`, s.apiKey, {
+  const body = {
     systemInstruction: { parts: [{ text: system }] },
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: { responseMimeType: 'application/json', responseSchema: schema, temperature: 0.6 },
-  })
+  }
+  const model = s.model || DEFAULT_MODEL
+  let data
+  try {
+    data = await call(`models/${model}:generateContent`, s.apiKey, body)
+  } catch (e) {
+    // Google retira modelos con el tiempo: si el elegido ya no existe, usamos el mejor disponible para esta clave
+    if (!(e instanceof GeminiError) || e.status !== 404) throw e
+    const fallback = pickModel((await listModels(s.apiKey)).filter((m) => m !== model))
+    if (!fallback) throw e
+    data = await call(`models/${fallback}:generateContent`, s.apiKey, body)
+    onModelResolved(fallback)
+  }
   const text: string | undefined = data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('')
   if (!text) throw new GeminiError('Gemini no devolvió respuesta. Inténtalo de nuevo.')
   try {
