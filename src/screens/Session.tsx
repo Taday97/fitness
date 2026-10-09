@@ -177,17 +177,17 @@ export default function SessionScreen() {
   const pct = timed ? 1 - remaining / (step.dur || 1) : 0
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[#fff8f8]">
+    <div className="flex min-h-dvh flex-col bg-page">
       {/* barra superior */}
       <header className="flex items-center gap-2 px-4 pt-[max(env(safe-area-inset-top),12px)] pb-2">
-        <button onClick={() => { setPaused(true); setConfirmExit(true) }} className="grid size-10 place-items-center rounded-full bg-white shadow-card" aria-label="Salir">
+        <button onClick={() => { setPaused(true); setConfirmExit(true) }} className="grid size-10 place-items-center rounded-full bg-surface shadow-card" aria-label="Salir">
           <X size={20} />
         </button>
-        <div className="flex-1 truncate rounded-full border border-line bg-white px-3 py-2 text-[11px] font-bold tracking-wide uppercase shadow-card">
+        <div className="flex-1 truncate rounded-full border border-line bg-surface px-3 py-2 text-[11px] font-bold tracking-wide uppercase shadow-card">
           <span className="mr-1.5 inline-block size-1.5 rounded-full bg-primary align-middle" />
           Ejercicio {Math.min(step.itemIndex + 1, flat.length)} de {flat.length} · {SECTION_LABEL[step.section]}
         </div>
-        <div className="flex items-center gap-1 rounded-full border border-line bg-white px-3 py-2 text-xs font-bold text-primary tabular shadow-card">
+        <div className="flex items-center gap-1 rounded-full border border-line bg-surface px-3 py-2 text-xs font-bold text-primary tabular shadow-card">
           <Timer size={14} /> {fmtTime(elapsed)}
         </div>
       </header>
@@ -199,7 +199,7 @@ export default function SessionScreen() {
 
       <main className="flex-1 space-y-4 overflow-y-auto px-4 pt-4 pb-40">
         {/* figura */}
-        <div className={cx('relative overflow-hidden rounded-3xl border border-line shadow-card', isRest ? 'bg-gradient-to-b from-[#fff3ee] to-white' : 'bg-gradient-to-b from-[#ffe8ec] to-white')}>
+        <div className={cx('relative overflow-hidden rounded-3xl border border-line shadow-card', isRest ? 'bg-gradient-to-b from-hero-3 to-surface' : 'bg-gradient-to-b from-hero-1 to-surface')}>
           <Figure
             key={idx}
             anim={ex.anim}
@@ -209,12 +209,12 @@ export default function SessionScreen() {
             className="mx-auto h-[34vh] max-h-80 w-full"
           />
           <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-            <span className={cx('rounded-full px-3 py-1 text-[11px] font-bold', isRest ? 'bg-white text-secondary' : 'bg-grad text-white')}>
+            <span className={cx('rounded-full px-3 py-1 text-[11px] font-bold', isRest ? 'bg-surface text-secondary' : 'bg-grad text-white')}>
               {step.kind === 'prep' ? 'PREPÁRATE' : step.kind === 'rest' ? 'DESCANSO · SIGUIENTE' : SECTION_LABEL[step.section].toUpperCase()}
             </span>
-            {step.sets > 1 && <span className="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-primary">SERIE {step.set}/{step.sets}</span>}
+            {step.sets > 1 && <span className="rounded-full bg-surface px-3 py-1 text-[11px] font-bold text-primary">SERIE {step.set}/{step.sets}</span>}
           </div>
-          <button onClick={() => setSettings({ voice: !voiceOn })} className="absolute top-2 right-2 grid size-9 place-items-center rounded-full bg-white/90 text-primary" aria-label="Voz">
+          <button onClick={() => setSettings({ voice: !voiceOn })} className="absolute top-2 right-2 grid size-9 place-items-center rounded-full bg-surface/90 text-primary" aria-label="Voz">
             {voiceOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
           </button>
         </div>
@@ -236,7 +236,7 @@ export default function SessionScreen() {
               </div>
             </Ring>
           ) : (
-            <div className="flex flex-col items-center rounded-3xl border border-line bg-white px-10 py-5 shadow-card">
+            <div className="flex flex-col items-center rounded-3xl border border-line bg-surface px-10 py-5 shadow-card">
               <div className="text-6xl font-extrabold tabular text-grad">{step.item.reps ?? 10}</div>
               <div className="text-xs font-bold tracking-wider text-muted uppercase">repeticiones{ex.perSide ? ' por lado' : ''}</div>
               {settings.countReps && <div className="mt-1 text-sm font-bold text-primary tabular">{repCount} / {step.item.reps ?? 10}</div>}
@@ -253,7 +253,7 @@ export default function SessionScreen() {
 
         {step.item.note && <p className="rounded-xl bg-blush p-3 text-sm">📝 {step.item.note}</p>}
 
-        <div className="rounded-2xl border border-line bg-white shadow-card">
+        <div className="rounded-2xl border border-line bg-surface shadow-card">
           <button onClick={() => setShowHow(!showHow)} className="flex w-full items-center justify-between p-4 font-bold">
             Cómo hacerlo {showHow ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
@@ -264,7 +264,7 @@ export default function SessionScreen() {
       {/* controles */}
       <footer className="glass fixed inset-x-0 bottom-0 z-20 border-t border-line pb-safe">
         <div className="mx-auto flex max-w-md items-center gap-3 px-4 py-3">
-          <button onClick={() => { let n = idx - 1; while (n > 0 && steps[n].kind !== 'work') n--; go(Math.max(0, n)) }} className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-primary shadow-card" aria-label="Anterior">
+          <button onClick={() => { let n = idx - 1; while (n > 0 && steps[n].kind !== 'work') n--; go(Math.max(0, n)) }} className="grid size-12 shrink-0 place-items-center rounded-full bg-surface text-primary shadow-card" aria-label="Anterior">
             <SkipBack size={20} />
           </button>
           {isRest ? (
@@ -279,7 +279,7 @@ export default function SessionScreen() {
               <Button size="lg" variant="secondary" className="flex-1" onClick={() => setPaused(!paused)}>
                 {paused ? <><Play size={18} fill="currentColor" /> Seguir</> : <><Pause size={18} fill="currentColor" /> Pausa</>}
               </Button>
-              <button onClick={() => go(idx + 1)} className="grid size-12 shrink-0 place-items-center rounded-full bg-white text-primary shadow-card" aria-label="Siguiente">
+              <button onClick={() => go(idx + 1)} className="grid size-12 shrink-0 place-items-center rounded-full bg-surface text-primary shadow-card" aria-label="Siguiente">
                 <SkipForward size={20} />
               </button>
             </>
@@ -292,7 +292,7 @@ export default function SessionScreen() {
       </footer>
 
       {paused && timed && !confirmExit && (
-        <div className="fixed inset-0 z-30 grid place-items-center bg-white/70 backdrop-blur-sm" onClick={() => setPaused(false)}>
+        <div className="fixed inset-0 z-30 grid place-items-center bg-surface/70 backdrop-blur-sm" onClick={() => setPaused(false)}>
           <div className="text-center">
             <div className="bg-grad shadow-glow mx-auto mb-3 grid size-20 place-items-center rounded-full text-white"><Play size={34} fill="currentColor" /></div>
             <div className="font-bold">En pausa · toca para seguir</div>
@@ -301,8 +301,8 @@ export default function SessionScreen() {
       )}
 
       {confirmExit && (
-        <div className="fixed inset-0 z-40 flex items-end justify-center bg-ink/40">
-          <div className="animate-sheet w-full max-w-md space-y-3 rounded-t-3xl bg-white p-5 pb-[max(env(safe-area-inset-bottom),20px)]">
+        <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/50">
+          <div className="animate-sheet w-full max-w-md space-y-3 rounded-t-3xl bg-surface p-5 pb-[max(env(safe-area-inset-bottom),20px)]">
             <h2 className="text-xl font-extrabold">¿Terminar el entrenamiento?</h2>
             <p className="text-sm text-muted">Llevas {fmtTime(elapsed)} y {doneItems.current.size} de {flat.length} ejercicios.</p>
             <Button className="w-full" onClick={() => finish(true)}>Guardar lo hecho y hacer check-in</Button>

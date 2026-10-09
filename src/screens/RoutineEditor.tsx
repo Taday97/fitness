@@ -60,7 +60,7 @@ export default function RoutineEditor() {
               const on = r.days.includes(i)
               return (
                 <button key={d} onClick={() => up({ days: on ? r.days.filter((x) => x !== i) : [...r.days, i].sort() })}
-                  className={cx('relative grid size-11 place-items-center rounded-full text-sm font-bold', on ? 'bg-grad text-white shadow-glow' : 'border border-line bg-white text-muted')}>
+                  className={cx('relative grid size-11 place-items-center rounded-full text-sm font-bold', on ? 'bg-grad text-white shadow-glow' : 'border border-line bg-surface text-muted')}>
                   {d}
                   {!on && otherDays.has(i) && <span className="absolute -top-0.5 right-0 size-2 rounded-full bg-peach" />}
                 </button>

@@ -191,31 +191,31 @@ function LineChart({ data, unit, target }: { data: { date: string; v: number }[]
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full">
       <defs>
         <linearGradient id={`fill-${unit}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#FF4B72" stopOpacity="0.25" />
-          <stop offset="1" stopColor="#FF4B72" stopOpacity="0" />
+          <stop offset="0" stopColor="var(--color-primary)" stopOpacity="0.25" />
+          <stop offset="1" stopColor="var(--color-primary)" stopOpacity="0" />
         </linearGradient>
         <linearGradient id={`line-${unit}`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#FF4B72" />
-          <stop offset="1" stopColor="#FF7E5F" />
+          <stop offset="0" stopColor="var(--color-primary)" />
+          <stop offset="1" stopColor="var(--color-secondary)" />
         </linearGradient>
       </defs>
       {ticks.map((t) => (
         <g key={t}>
-          <line x1={P.l} x2={W - P.r} y1={Y(t)} y2={Y(t)} stroke="#FEE8EB" />
-          <text x={P.l - 6} y={Y(t) + 3} textAnchor="end" fontSize="9" fill="#A3989D">{t.toFixed(1)}</text>
+          <line x1={P.l} x2={W - P.r} y1={Y(t)} y2={Y(t)} stroke="var(--color-line)" />
+          <text x={P.l - 6} y={Y(t) + 3} textAnchor="end" fontSize="9" fill="var(--color-faint)">{t.toFixed(1)}</text>
         </g>
       ))}
       {target && (
         <g>
-          <line x1={P.l} x2={W - P.r} y1={Y(target)} y2={Y(target)} stroke="#22B07D" strokeDasharray="4 4" />
-          <text x={W - P.r} y={Y(target) - 4} textAnchor="end" fontSize="9" fill="#22B07D" fontWeight="700">meta {target} {unit}</text>
+          <line x1={P.l} x2={W - P.r} y1={Y(target)} y2={Y(target)} stroke="var(--color-ok)" strokeDasharray="4 4" />
+          <text x={W - P.r} y={Y(target) - 4} textAnchor="end" fontSize="9" fill="var(--color-ok)" fontWeight="700">meta {target} {unit}</text>
         </g>
       )}
       <polygon points={area} fill={`url(#fill-${unit})`} />
       <polyline points={pts} fill="none" stroke={`url(#line-${unit})`} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
-      {data.map((d, i) => <circle key={i} cx={X(xs[i])} cy={Y(d.v)} r="3.5" fill="#fff" stroke="#FF4B72" strokeWidth="2" />)}
-      <text x={P.l} y={H - 6} fontSize="9" fill="#A3989D">{fmtDate(data[0].date)}</text>
-      <text x={W - P.r} y={H - 6} fontSize="9" fill="#A3989D" textAnchor="end">{fmtDate(data[data.length - 1].date)}</text>
+      {data.map((d, i) => <circle key={i} cx={X(xs[i])} cy={Y(d.v)} r="3.5" fill="var(--color-surface)" stroke="var(--color-primary)" strokeWidth="2" />)}
+      <text x={P.l} y={H - 6} fontSize="9" fill="var(--color-faint)">{fmtDate(data[0].date)}</text>
+      <text x={W - P.r} y={H - 6} fontSize="9" fill="var(--color-faint)" textAnchor="end">{fmtDate(data[data.length - 1].date)}</text>
     </svg>
   )
 }

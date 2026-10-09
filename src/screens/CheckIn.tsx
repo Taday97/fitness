@@ -106,7 +106,7 @@ export default function CheckInScreen() {
         <h1 className="text-[28px] font-extrabold">¡Sesión terminada! 🎉</h1>
         <p className="text-sm text-white/90">Cuéntame cómo te fue para ajustar tu próximo entreno.</p>
         {session && (
-          <div className="mt-4 grid grid-cols-3 divide-x divide-white/30 rounded-2xl bg-white/15 py-3 text-center">
+          <div className="mt-4 grid grid-cols-3 divide-x divide-white/30 rounded-2xl bg-surface/15 py-3 text-center">
             <div><div className="text-[10px] font-bold opacity-80">TIEMPO</div><div className="text-xl font-extrabold">{fmtTime(session.durationSec)}</div></div>
             <div><div className="text-[10px] font-bold opacity-80">EJERCICIOS</div><div className="text-xl font-extrabold">{session.exercisesDone}/{session.exercisesTotal}</div></div>
             <div><div className="text-[10px] font-bold opacity-80">GASTO</div><div className="text-xl font-extrabold">~{session.kcal}<span className="text-xs"> kcal</span></div></div>
@@ -160,7 +160,7 @@ export default function CheckInScreen() {
       </Card>
 
       {error && (
-        <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-xl bg-red-500/10 p-3 text-sm text-red-500">
           {error}
           <button className="mt-1 block font-bold underline" onClick={() => save(false)}>Guardar con ajuste básico</button>
         </div>

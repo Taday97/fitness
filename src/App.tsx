@@ -56,7 +56,7 @@ function Shell() {
   const ready = profile && plan
   const showNav = ready && ['/', '/plan', '/progress'].includes(loc.pathname)
   return (
-    <div className={cx('mx-auto min-h-dvh max-w-md bg-[#fff8f8]', showNav && 'pb-24')}>
+    <div className={cx('mx-auto min-h-dvh max-w-md bg-page', showNav && 'pb-24')}>
       <Routes>
         <Route path="/onboarding" element={<Onboarding />} />
         {!ready ? (

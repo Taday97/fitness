@@ -32,20 +32,20 @@ export default function RoutinePreview() {
         }
       />
       <div className="space-y-5 px-5 pt-4">
-        <div className="relative h-48 overflow-hidden rounded-3xl bg-gradient-to-br from-[#ffe1e6] via-[#fff0f2] to-[#ffe7de]">
+        <div className="relative h-48 overflow-hidden rounded-3xl bg-gradient-to-br from-hero-1 via-hero-2 to-hero-3">
           <Figure anim={getEx(r.main[0]?.exerciseId ?? 'squat').anim} className="absolute right-2 bottom-0 h-44 w-44" />
           <div className="absolute top-4 left-4 flex max-w-[55%] flex-wrap gap-1.5">
             {r.days.length ? (
               r.days.map((d) => (
-                <span key={d} className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-primary">{DAYS[d]}</span>
+                <span key={d} className="rounded-full bg-surface/90 px-2.5 py-1 text-[11px] font-bold text-primary">{DAYS[d]}</span>
               ))
             ) : (
-              <span className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-muted">Sin días asignados</span>
+              <span className="rounded-full bg-surface/90 px-2.5 py-1 text-[11px] font-bold text-muted">Sin días asignados</span>
             )}
           </div>
         </div>
 
-        <div className="grid grid-cols-4 divide-x divide-line rounded-2xl border border-line bg-white py-3 text-center shadow-card">
+        <div className="grid grid-cols-4 divide-x divide-line rounded-2xl border border-line bg-surface py-3 text-center shadow-card">
           <Stat icon={<Clock size={16} />} v={`${estimateMinutes(r, settings)}`} l="MIN" />
           <Stat icon={<Flame size={16} />} v={`~${estimateKcal(r, profile!.weightKg)}`} l="KCAL" />
           <Stat icon={<Dumbbell size={16} />} v={`${r.main.length}`} l="EJERCICIOS" />

@@ -16,7 +16,9 @@ export interface Profile {
   waistCm?: number
   hipCm?: number
   activity: Activity
-  goal: string // texto libre o uno de los predefinidos
+  goal: string // todos los propósitos juntos en texto (lo que leen la IA y las pantallas)
+  goals?: string[] // propósitos predefinidos elegidos
+  customGoal?: string // propósito escrito a mano
   level: Level
   daysPerWeek: number
   trainingDays: number[] // 0 = lunes … 6 = domingo
@@ -114,6 +116,8 @@ export interface CheckIn {
 }
 
 export interface Settings {
+  accent: 'rose' | 'blue' | 'green' | 'purple' | 'orange'
+  theme: 'light' | 'dark' | 'system'
   apiKey: string
   model: string
   voice: boolean

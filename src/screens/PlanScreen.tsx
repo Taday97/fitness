@@ -51,7 +51,7 @@ export default function PlanScreen() {
 
         {/* estimación */}
         <div className="bg-grad rounded-3xl p-5 text-white shadow-glow">
-          <div className="flex items-center gap-2 text-xs font-bold tracking-wider uppercase opacity-90"><Target size={16} /> Tu propósito: {profile!.goal}</div>
+          <div className="flex items-center gap-2 text-xs font-bold tracking-wider uppercase opacity-90"><Target size={16} /> {profile!.goal.includes(', ') ? 'Tus propósitos' : 'Tu propósito'}: {profile!.goal}</div>
           <div className="mt-3 flex items-end gap-2">
             <span className="text-6xl leading-none font-extrabold">{p.weeksEstimate}</span>
             <span className="pb-1 text-xl font-bold">semanas</span>
@@ -59,7 +59,7 @@ export default function PlanScreen() {
           <div className="mt-1 text-sm font-semibold text-white/90">
             Meta estimada: {target.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
           </div>
-          {p.estimateExplanation && <p className="mt-3 rounded-2xl bg-white/15 p-3 text-sm">{p.estimateExplanation}</p>}
+          {p.estimateExplanation && <p className="mt-3 rounded-2xl bg-surface/15 p-3 text-sm">{p.estimateExplanation}</p>}
         </div>
 
         {/* nutrición */}
@@ -131,7 +131,7 @@ export default function PlanScreen() {
           </Card>
         )}
 
-        {error && <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {error && <div className="rounded-xl bg-red-500/10 p-3 text-sm text-red-500">{error}</div>}
         <Button size="lg" variant="white" className="w-full" disabled={busy} onClick={() => confirm('Se creará un plan nuevo (tus rutinas propias se conservan). ¿Continuar?') && regenerate()}>
           <RefreshCw size={18} className={busy ? 'animate-spin' : ''} /> {busy ? 'Generando…' : settings.apiKey ? 'Regenerar plan con IA' : 'Regenerar plan básico'}
         </Button>

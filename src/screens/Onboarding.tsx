@@ -33,7 +33,7 @@ const LOADING_MSGS = [
 ]
 
 const blank = (): Profile => ({
-  name: '', sex: 'female', age: 28, heightCm: 163, weightKg: 62, activity: 'light', goal: 'Tonificar',
+  name: '', sex: 'female', age: 28, heightCm: 163, weightKg: 62, activity: 'light', goal: 'Tonificar', goals: ['Tonificar'],
   level: 'beginner', daysPerWeek: 3, trainingDays: [0, 2, 4], minutesPerSession: 30, place: 'home', equipment: ['mat'],
   focusAreas: ['Glúteos', 'Abdomen'], limitations: '', createdAt: new Date().toISOString(),
 })
@@ -46,13 +46,23 @@ export default function Onboarding() {
   const [p, setP] = useState<Profile>(() => (store.profile ? { ...store.profile } : blank()))
   const [step, setStep] = useState(editing ? 1 : 0)
   const [key, setKey] = useState(store.settings.apiKey)
-  const [customGoal, setCustomGoal] = useState(!GOALS.some((g) => g.label === p.goal))
+  // perfiles antiguos solo tienen "goal": se separa en predefinidos + texto propio
+  const [goalSel, setGoalSel] = useState<string[]>(() => p.goals ?? GOALS.filter((g) => p.goal.split(', ').includes(g.label)).map((g) => g.label))
+  const [customText, setCustomText] = useState(() => p.customGoal ?? p.goal.split(', ').filter((x) => !GOALS.some((g) => g.label === x)).join(', '))
+  const [customGoal, setCustomGoal] = useState(!!customText)
   const [hasTarget, setHasTarget] = useState(!!p.targetWeightKg)
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState(0)
   const [error, setError] = useState('')
 
   const up = (o: Partial<Profile>) => setP((x) => ({ ...x, ...o }))
+  const setGoals = (sel: string[], customOn: boolean, text: string) => {
+    setGoalSel(sel)
+    setCustomGoal(customOn)
+    setCustomText(text)
+    const custom = customOn ? text.trim() : ''
+    up({ goals: sel, customGoal: custom || undefined, goal: [...sel, custom].filter(Boolean).join(', ') })
+  }
   const steps = 5
 
   useEffect(() => {
@@ -223,30 +233,32 @@ export default function Onboarding() {
 
         {step === 3 && (
           <div className="space-y-5">
-            <Title t="¿Cuál es tu propósito?" s="La IA elegirá ejercicios y te dirá en cuánto tiempo puedes lograrlo." />
+            <Title t="¿Cuáles son tus propósitos?" s="Elige uno o varios. La IA equilibrará el plan y te dirá en cuánto tiempo puedes lograrlo." />
             <div className="space-y-2">
               {GOALS.map((g) => (
                 <button
                   key={g.label}
-                  onClick={() => { setCustomGoal(false); up({ goal: g.label }) }}
-                  className={cx('flex w-full items-center gap-3 rounded-2xl border-2 bg-white p-3 text-left transition', !customGoal && p.goal === g.label ? 'border-primary shadow-float' : 'border-line')}
+                  onClick={() => setGoals(goalSel.includes(g.label) ? goalSel.filter((x) => x !== g.label) : [...goalSel, g.label], customGoal, customText)}
+                  className={cx('flex w-full items-center gap-3 rounded-2xl border-2 bg-surface p-3 text-left transition', goalSel.includes(g.label) ? 'border-primary shadow-float' : 'border-line')}
                 >
                   <span className="grid size-11 place-items-center rounded-xl bg-blush text-xl">{g.emoji}</span>
                   <span className="flex-1">
                     <span className="block font-bold">{g.label}</span>
                     <span className="block text-xs text-muted">{g.desc}</span>
                   </span>
+                  <Tick on={goalSel.includes(g.label)} />
                 </button>
               ))}
               <button
-                onClick={() => { setCustomGoal(true); up({ goal: '' }) }}
-                className={cx('flex w-full items-center gap-3 rounded-2xl border-2 bg-white p-3 text-left', customGoal ? 'border-primary' : 'border-line')}
+                onClick={() => setGoals(goalSel, !customGoal, customText)}
+                className={cx('flex w-full items-center gap-3 rounded-2xl border-2 bg-surface p-3 text-left', customGoal ? 'border-primary' : 'border-line')}
               >
                 <span className="grid size-11 place-items-center rounded-xl bg-blush text-xl">✍️</span>
-                <span className="font-bold">Otro (lo escribo yo)</span>
+                <span className="flex-1 font-bold">Otro (lo escribo yo)</span>
+                <Tick on={customGoal} />
               </button>
               {customGoal && (
-                <textarea className={inputCls} rows={2} value={p.goal} onChange={(e) => up({ goal: e.target.value })} placeholder="Ej.: levantar glúteos y marcar abdomen para el verano" autoFocus />
+                <textarea className={inputCls} rows={2} value={customText} onChange={(e) => setGoals(goalSel, true, e.target.value)} placeholder="Ej.: levantar glúteos y marcar abdomen para el verano" autoFocus />
               )}
             </div>
             <div>
@@ -276,7 +288,7 @@ export default function Onboarding() {
               <div className="grid grid-cols-2 gap-2">
                 {([['home', '🏠', 'En casa'], ['gym', '🏋️', 'En el gimnasio']] as const).map(([v, e, l]) => (
                   <button key={v} onClick={() => up({ place: v })}
-                    className={cx('flex flex-col items-center gap-1 rounded-2xl border-2 bg-white p-3 text-sm font-bold', (p.place ?? 'home') === v ? 'border-primary text-primary' : 'border-line text-muted')}>
+                    className={cx('flex flex-col items-center gap-1 rounded-2xl border-2 bg-surface p-3 text-sm font-bold', (p.place ?? 'home') === v ? 'border-primary text-primary' : 'border-line text-muted')}>
                     <span className="text-2xl">{e}</span>{l}
                   </button>
                 ))}
@@ -290,7 +302,7 @@ export default function Onboarding() {
                   const on = p.trainingDays.includes(i)
                   return (
                     <button key={d} onClick={() => up({ trainingDays: on ? p.trainingDays.filter((x) => x !== i) : [...p.trainingDays, i] })}
-                      className={cx('grid size-11 place-items-center rounded-full text-sm font-bold transition', on ? 'bg-grad text-white shadow-glow' : 'border border-line bg-white text-muted')}>
+                      className={cx('grid size-11 place-items-center rounded-full text-sm font-bold transition', on ? 'bg-grad text-white shadow-glow' : 'border border-line bg-surface text-muted')}>
                       {d}
                     </button>
                   )
@@ -317,7 +329,7 @@ export default function Onboarding() {
                   return (
                     <div key={v}>
                       <button onClick={() => up({ equipment: on ? p.equipment.filter((x) => x !== v) : [...p.equipment, v] })}
-                        className={cx('flex w-full items-center gap-3 rounded-2xl border-2 bg-white p-3 text-left', on ? 'border-primary' : 'border-line')}>
+                        className={cx('flex w-full items-center gap-3 rounded-2xl border-2 bg-surface p-3 text-left', on ? 'border-primary' : 'border-line')}>
                         <span className="grid size-10 place-items-center rounded-xl bg-blush text-lg">{e}</span>
                         <span className="flex-1"><b className="block text-sm">{l}</b><span className="text-xs text-muted">{d}</span></span>
                         <span className={cx('grid size-6 place-items-center rounded-full text-xs text-white', on ? 'bg-grad' : 'border-2 border-line')}>{on && '✓'}</span>
@@ -354,7 +366,7 @@ export default function Onboarding() {
             <Field label="Tu clave de Gemini" hint="Se guarda solo en tu teléfono. Nunca se sube a GitHub.">
               <input className={inputCls} value={key} onChange={(e) => setKey(e.target.value)} placeholder="AQ.… o AIza…" autoComplete="off" spellCheck={false} />
             </Field>
-            {error && <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+            {error && <div className="rounded-xl bg-red-500/10 p-3 text-sm text-red-500">{error}</div>}
           </div>
         )}
       </div>
@@ -392,9 +404,13 @@ function Title({ t, s }: { t: string; s: string }) {
 
 function Choice({ active, onClick, title, desc }: { active: boolean; onClick: () => void; title: string; desc: string }) {
   return (
-    <button onClick={onClick} className={cx('rounded-2xl p-3 text-center transition', active ? 'bg-grad text-white shadow-glow' : 'border border-line bg-white')}>
+    <button onClick={onClick} className={cx('rounded-2xl p-3 text-center transition', active ? 'bg-grad text-white shadow-glow' : 'border border-line bg-surface')}>
       <div className="text-sm font-bold">{title}</div>
       <div className={cx('text-[11px]', active ? 'text-white/85' : 'text-muted')}>{desc}</div>
     </button>
   )
+}
+
+function Tick({ on }: { on: boolean }) {
+  return <span className={cx('grid size-6 shrink-0 place-items-center rounded-full text-xs text-white', on ? 'bg-grad' : 'border-2 border-line')}>{on && '✓'}</span>
 }

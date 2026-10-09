@@ -10,6 +10,12 @@ export const GOALS: { label: string; type: GoalType; emoji: string; desc: string
   { label: 'Flexibilidad y bienestar', type: 'wellness', emoji: '🌸', desc: 'Moverme mejor y sentirme bien' },
 ]
 
+/** Todos los tipos de propósito presentes (se pueden elegir varios). */
+export function goalTypes(goal: string): Set<GoalType> {
+  return new Set(goal.split(/,\s*|\s+\+\s+/).filter(Boolean).map(goalType))
+}
+
+/** Tipo principal: perder grasa > ganar músculo > resistencia > bienestar > tonificar */
 export function goalType(goal: string): GoalType {
   const g = goal.toLowerCase()
   if (/(perder|grasa|adelgaz|bajar|quemar)/.test(g)) return 'lose'
@@ -34,14 +40,16 @@ export function bmr(p: Profile, weight = p.weightKg) {
 
 /** Cálculo local (Mifflin-St Jeor). Se usa sin IA y como referencia para la IA. */
 export function localNutrition(p: Profile, weight = p.weightKg): Nutrition {
-  const type = goalType(p.goal)
+  const types = goalTypes(p.goal)
+  const lose = types.has('lose'), gain = types.has('gain')
   // los días de entrenamiento suben un poco el gasto
   const factor = ACTIVITY[p.activity] + Math.min(p.daysPerWeek, 6) * 0.02
   const tdee = bmr(p, weight) * factor
-  const delta = type === 'lose' ? -450 : type === 'gain' ? 250 : 0
+  // perder grasa y ganar músculo a la vez (recomposición): déficit suave y más proteína
+  const delta = lose && gain ? -250 : lose ? -450 : gain ? 250 : 0
   const min = p.sex === 'male' ? 1500 : 1200
   const calories = Math.round(Math.max(min, tdee + delta) / 10) * 10
-  const proteinPerKg = type === 'lose' || type === 'gain' ? 1.8 : type === 'tone' ? 1.6 : 1.4
+  const proteinPerKg = lose && gain ? 2 : lose || gain ? 1.8 : types.has('tone') ? 1.6 : 1.4
   const proteinG = Math.round(weight * proteinPerKg)
   const fatG = Math.round(weight * 0.8)
   const carbsG = Math.max(50, Math.round((calories - proteinG * 4 - fatG * 9) / 4))

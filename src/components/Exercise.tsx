@@ -8,11 +8,11 @@ import { Sheet } from './ui'
 export function ExerciseRow({ item, index, onInfo }: { item: RoutineItem; index?: number; onInfo?: () => void }) {
   const ex = getEx(item.exerciseId)
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-line bg-white p-2.5 shadow-card">
+    <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-2.5 shadow-card">
       <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-blush">
         <Figure anim={ex.anim} playing={false} still={0.5} className="size-full" />
         {index !== undefined && (
-          <span className="absolute bottom-0.5 left-0.5 rounded-md bg-white/90 px-1 text-[10px] font-bold text-primary">{String(index + 1).padStart(2, '0')}</span>
+          <span className="absolute bottom-0.5 left-0.5 rounded-md bg-surface/90 px-1 text-[10px] font-bold text-primary">{String(index + 1).padStart(2, '0')}</span>
         )}
       </div>
       <div className="min-w-0 flex-1">
@@ -47,7 +47,7 @@ export function ExerciseDetail({ id, note, hideFigure }: { id: string; note?: st
   return (
     <div className="space-y-4">
       {!hideFigure && (
-        <div className="rounded-2xl bg-gradient-to-b from-blush to-white p-2">
+        <div className="rounded-2xl bg-gradient-to-b from-blush to-surface p-2">
           <Figure anim={ex.anim} className="mx-auto h-56 w-full" />
         </div>
       )}
@@ -65,7 +65,7 @@ export function ExerciseDetail({ id, note, hideFigure }: { id: string; note?: st
           </li>
         ))}
       </ol>
-      <div className="flex gap-2 rounded-xl border border-[#ffd2c4] bg-[#fff6f2] p-3 text-sm">
+      <div className="flex gap-2 rounded-xl border border-line bg-blush p-3 text-sm">
         <Lightbulb size={18} className="shrink-0 text-secondary" />
         <span>{ex.tip}</span>
       </div>

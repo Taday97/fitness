@@ -5,6 +5,8 @@ import { DEFAULT_MODEL, setModelListener } from './lib/gemini'
 import { weekday } from './lib/utils'
 
 export const DEFAULT_SETTINGS: Settings = {
+  accent: 'rose',
+  theme: 'light',
   apiKey: '',
   model: DEFAULT_MODEL,
   voice: true,

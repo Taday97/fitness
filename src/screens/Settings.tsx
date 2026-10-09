@@ -1,11 +1,12 @@
 import { useRef, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check, Download, ExternalLink, KeyRound, Trash2, Upload, UserRound, Volume2 } from 'lucide-react'
+import { Check, Download, ExternalLink, KeyRound, Monitor, Moon, Sun, Trash2, Upload, UserRound, Volume2 } from 'lucide-react'
 import { useStore } from '../store'
 import { DEFAULT_MODEL, GeminiError, listModels } from '../lib/gemini'
 import { beep, speak } from '../lib/audio'
 import { downloadJSON } from '../lib/utils'
-import { Button, Card, Field, Label, Stepper, Toggle, TopBar, inputCls } from '../components/ui'
+import { ACCENTS } from '../lib/theme'
+import { Button, Card, Field, Label, Stepper, Toggle, TopBar, cx, inputCls } from '../components/ui'
 
 export default function SettingsScreen() {
   const nav = useNavigate()
@@ -79,6 +80,40 @@ export default function SettingsScreen() {
         </Card>
 
         <section>
+          <Label>Apariencia</Label>
+          <Card className="space-y-4">
+            <div>
+              <div className="mb-2 text-sm font-semibold">Color</div>
+              <div className="flex justify-between">
+                {ACCENTS.map((a) => (
+                  <button key={a.id} onClick={() => setSettings({ accent: a.id })} className="flex flex-col items-center gap-1" aria-label={a.name}>
+                    <span
+                      className={cx('grid size-11 place-items-center rounded-full text-white ring-offset-2 ring-offset-surface', settings.accent === a.id && 'ring-2 ring-ink')}
+                      style={{ backgroundImage: `linear-gradient(135deg, ${a.from}, ${a.to})` }}
+                    >
+                      {settings.accent === a.id && <Check size={18} strokeWidth={3} />}
+                    </span>
+                    <span className="text-[11px] font-semibold text-muted">{a.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="mb-2 text-sm font-semibold">Modo</div>
+              <div className="grid grid-cols-3 gap-2">
+                {([['light', 'Claro', Sun], ['dark', 'Oscuro', Moon], ['system', 'Automático', Monitor]] as const).map(([v, l, Icon]) => (
+                  <button key={v} onClick={() => setSettings({ theme: v })}
+                    className={cx('flex flex-col items-center gap-1 rounded-2xl border-2 py-2.5 text-xs font-bold', settings.theme === v ? 'border-primary text-primary' : 'border-line text-muted')}>
+                    <Icon size={18} /> {l}
+                  </button>
+                ))}
+              </div>
+              {settings.theme === 'system' && <p className="mt-2 text-xs text-muted">Sigue el modo claro u oscuro de tu teléfono.</p>}
+            </div>
+          </Card>
+        </section>
+
+        <section>
           <Label>Inteligencia artificial (Gemini)</Label>
           <Card className="space-y-3">
             <Field label="Clave de API" hint="Se guarda solo en este teléfono.">
@@ -104,7 +139,7 @@ export default function SettingsScreen() {
                 </Button>
               )}
             </div>
-            {status && <p className={status.ok ? 'text-sm font-semibold text-emerald-600' : 'text-sm font-semibold text-primary-dark'}>{status.text}</p>}
+            {status && <p className={status.ok ? 'text-sm font-semibold text-ok' : 'text-sm font-semibold text-primary-dark'}>{status.text}</p>}
             <Field label="Modelo" hint="Los modelos «flash» son rápidos y entran en la capa gratuita.">
               <select value={settings.model} onChange={(e) => setSettings({ model: e.target.value })} className={inputCls}>
                 {modelOptions.map((m) => <option key={m} value={m}>{m}</option>)}

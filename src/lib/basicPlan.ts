@@ -124,7 +124,7 @@ export function basicPlan(p: Profile, s: Settings): Plan {
     createdAt: now,
     updatedAt: now,
     source: 'basic',
-    summary: `Plan básico de ${days.length} días por semana ${gym ? 'en el gimnasio ' : ''}para ${p.goal.toLowerCase()}.`,
+    summary: `Plan básico de ${days.length} días por semana ${gym ? 'en el gimnasio ' : ''}para: ${p.goal.toLowerCase()}.`,
     weeksEstimate: localWeeksEstimate(p),
     estimateExplanation:
       'Estimación calculada con un ritmo sostenible (unos 0,5 kg por semana al perder grasa). Conecta Gemini para un análisis personalizado.',

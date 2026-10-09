@@ -3,17 +3,18 @@ import { useStore } from '../store'
 import { ANIMS } from './animations'
 import { bounds, cycleMs, HANG_Y, L, poseAt, solve, type Anim, type Joints, type Pt } from './skeleton'
 
+// Colores del tema (cambian con el color elegido y el modo oscuro)
 const C = {
-  near: '#FF4B72',
-  torso: '#F2385F',
-  far: '#FFB2BA',
-  head: '#2B2628',
-  floor: '#FEE8EB',
-  mat: '#FFD9DC',
-  iron: '#3A3236',
+  near: 'var(--color-primary)',
+  torso: 'color-mix(in srgb, var(--color-primary) 86%, black)',
+  far: 'var(--color-fig-far)',
+  head: 'var(--color-fig-head)',
+  floor: 'var(--color-line)',
+  mat: 'var(--color-rose-100)',
+  iron: 'var(--color-iron)',
   chair: '#C9A28E',
-  frame: '#B8ADB1',
-  pad: '#F7B9C5',
+  frame: 'var(--color-frame)',
+  pad: 'var(--color-pad)',
 }
 
 interface Props {
@@ -177,7 +178,7 @@ function Plate({ p, r = 13 }: { p: Pt; r?: number }) {
   return (
     <g>
       <circle cx={p.x} cy={p.y} r={r} fill={C.iron} />
-      <circle cx={p.x} cy={p.y} r={r * 0.35} fill="#6B6166" />
+      <circle cx={p.x} cy={p.y} r={r * 0.35} fill="var(--color-frame)" />
     </g>
   )
 }
@@ -226,7 +227,7 @@ function GymBack({ props, j, anim }: { props: string[]; j: Joints; anim: Anim })
       {anim.pulley && (
         <g>
           <line x1={anim.pulley.x + 6} y1={Math.min(anim.pulley.y - 8, -170)} x2={anim.pulley.x + 6} y2={2} stroke={C.frame} strokeWidth={6} strokeLinecap="round" />
-          <line x1={anim.pulley.x} y1={anim.pulley.y} x2={hands.x} y2={hands.y} stroke="#8A7F84" strokeWidth={1.6} />
+          <line x1={anim.pulley.x} y1={anim.pulley.y} x2={hands.x} y2={hands.y} stroke="var(--color-faint)" strokeWidth={1.6} />
           <circle cx={anim.pulley.x} cy={anim.pulley.y} r={5} fill={C.iron} />
         </g>
       )}

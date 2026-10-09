@@ -173,7 +173,7 @@ function profileText(p: Profile) {
 Sexo: ${p.sex === 'female' ? 'mujer' : 'hombre'} · Edad: ${p.age} años
 Altura: ${p.heightCm} cm · Peso: ${p.weightKg} kg · IMC: ${bmi(p).toFixed(1)}
 ${p.targetWeightKg ? `Peso objetivo: ${p.targetWeightKg} kg\n` : ''}${p.waistCm ? `Cintura: ${p.waistCm} cm\n` : ''}${p.hipCm ? `Cadera: ${p.hipCm} cm\n` : ''}Actividad diaria fuera del entreno: ${p.activity}
-Objetivo: ${p.goal}
+Objetivos (pueden ser varios; equilibra el plan entre todos): ${p.goal}
 Nivel: ${p.level}
 Zonas a priorizar: ${p.focusAreas.join(', ') || 'todo el cuerpo'}
 Días de entrenamiento: ${p.trainingDays.map((d) => `${d} (${DAYS[d]})`).join(', ')}

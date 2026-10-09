@@ -39,7 +39,7 @@ export default function Home() {
             {settings.apiKey ? 'IA ACTIVA · GEMINI' : 'MODO BÁSICO · SIN IA'}
           </div>
         </div>
-        <Link to="/settings" className="bg-grad grid size-11 place-items-center rounded-full text-lg font-extrabold text-white ring-2 ring-white shadow-glow" aria-label="Ajustes">
+        <Link to="/settings" className="bg-grad grid size-11 place-items-center rounded-full text-lg font-extrabold text-white ring-2 ring-surface shadow-glow" aria-label="Ajustes">
           {profile!.name.charAt(0).toUpperCase()}
         </Link>
       </header>
@@ -49,7 +49,7 @@ export default function Home() {
           <div className="text-xs font-bold tracking-wider text-muted uppercase">Semana {week} · {new Date().toLocaleDateString('es-ES', { weekday: 'long' })}</div>
           <h1 className="text-[28px] leading-tight font-extrabold">{hello}, {profile!.name}! ✨</h1>
         </div>
-        <div className="flex items-center gap-1 rounded-full border border-line bg-white px-3 py-1.5 text-xs font-bold text-primary shadow-card">
+        <div className="flex items-center gap-1 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-bold text-primary shadow-card">
           <Flame size={14} fill="currentColor" /> {st} {st === 1 ? 'día' : 'días'}
         </div>
       </div>
@@ -109,11 +109,11 @@ export default function Home() {
 
       {/* rutina del día */}
       {r ? (
-        <div className="overflow-hidden rounded-3xl border border-line bg-white shadow-float">
-          <div className="relative h-52 bg-gradient-to-br from-[#ffe1e6] via-[#fff0f2] to-[#ffe7de]">
+        <div className="overflow-hidden rounded-3xl border border-line bg-surface shadow-float">
+          <div className="relative h-52 bg-gradient-to-br from-hero-1 via-hero-2 to-hero-3">
             <Figure anim={getEx(r.main[0]?.exerciseId ?? 'squat').anim} className="absolute right-0 bottom-0 h-48 w-48" />
             <div className="absolute top-3 left-3 flex gap-2">
-              <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-primary">
+              <span className="rounded-full bg-surface/90 px-3 py-1 text-[11px] font-bold text-primary">
                 {chosen ? 'RUTINA ELEGIDA' : doneToday ? '✓ HECHA HOY' : 'RUTINA DE HOY'}
               </span>
             </div>
@@ -138,7 +138,7 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <Card className="flex items-center gap-4 bg-gradient-to-br from-white to-blush">
+        <Card className="flex items-center gap-4 bg-gradient-to-br from-surface to-blush">
           <Figure anim="child_pose" className="h-24 w-28 shrink-0" />
           <div>
             <div className="text-lg font-extrabold">Hoy toca descanso 🌙</div>
@@ -154,7 +154,7 @@ export default function Home() {
           <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
             {routines.map((x) => (
               <button key={x.id} onClick={() => setChosen(x.id === today?.id ? undefined : x.id)}
-                className={cx('shrink-0 rounded-full px-4 py-2 text-sm font-semibold', r?.id === x.id ? 'bg-grad text-white shadow-glow' : 'border border-line bg-white text-muted')}>
+                className={cx('shrink-0 rounded-full px-4 py-2 text-sm font-semibold', r?.id === x.id ? 'bg-grad text-white shadow-glow' : 'border border-line bg-surface text-muted')}>
                 {x.name}
               </button>
             ))}

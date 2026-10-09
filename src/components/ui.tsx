@@ -16,7 +16,7 @@ export function Button({ variant = 'primary', size = 'md', className, ...p }: Bt
         variant === 'primary' && 'bg-grad text-white shadow-glow',
         variant === 'secondary' && 'bg-blush-2 text-primary',
         variant === 'ghost' && 'text-muted hover:bg-blush',
-        variant === 'white' && 'bg-white text-primary shadow-card',
+        variant === 'white' && 'bg-surface text-primary shadow-card',
         className,
       )}
     />
@@ -25,7 +25,7 @@ export function Button({ variant = 'primary', size = 'md', className, ...p }: Bt
 
 export function Card({ className, children, onClick }: { className?: string; children: ReactNode; onClick?: () => void }) {
   return (
-    <div onClick={onClick} className={cx('rounded-2xl border border-line bg-white p-4 shadow-card', onClick && 'cursor-pointer active:scale-[0.99] transition', className)}>
+    <div onClick={onClick} className={cx('rounded-2xl border border-line bg-surface p-4 shadow-card', onClick && 'cursor-pointer active:scale-[0.99] transition', className)}>
       {children}
     </div>
   )
@@ -38,7 +38,7 @@ export function Chip({ active, children, onClick, className }: { active?: boolea
       onClick={onClick}
       className={cx(
         'inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold transition',
-        active ? 'bg-grad text-white shadow-glow' : 'border border-line bg-white text-muted',
+        active ? 'bg-grad text-white shadow-glow' : 'border border-line bg-surface text-muted',
         className,
       )}
     >
@@ -97,12 +97,12 @@ export function TopBar({ title, subtitle, back, right }: { title: string; subtit
 export function Sheet({ open, onClose, children, title }: { open: boolean; onClose: () => void; children: ReactNode; title?: string }) {
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50" onClick={onClose}>
       <div
-        className="animate-sheet max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-white pb-safe"
+        className="animate-sheet max-h-[92vh] w-full max-w-md overflow-y-auto rounded-t-3xl bg-surface pb-safe"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between bg-white/95 px-5 pt-4 pb-2 backdrop-blur">
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-surface/95 px-5 pt-4 pb-2 backdrop-blur">
           <div className="text-lg font-bold">{title}</div>
           <button onClick={onClose} className="grid size-9 place-items-center rounded-full bg-blush" aria-label="Cerrar">
             <X size={18} />
@@ -122,11 +122,11 @@ export function Ring({ value, size = 180, stroke = 12, children }: { value: numb
       <svg width={size} height={size} className="-rotate-90">
         <defs>
           <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#FF4B72" />
-            <stop offset="100%" stopColor="#FF7E5F" />
+            <stop offset="0%" stopColor="var(--color-primary)" />
+            <stop offset="100%" stopColor="var(--color-secondary)" />
           </linearGradient>
         </defs>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#FEE8EB" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-line)" strokeWidth={stroke} />
         <circle
           cx={size / 2} cy={size / 2} r={r} fill="none" stroke="url(#ringGrad)" strokeWidth={stroke}
           strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.min(1, Math.max(0, value)))}
@@ -146,7 +146,7 @@ export function Toggle({ checked, onChange, label, desc }: { checked: boolean; o
         {desc && <div className="text-xs text-muted">{desc}</div>}
       </div>
       <span className={cx('relative h-7 w-12 shrink-0 rounded-full transition', checked ? 'bg-grad' : 'bg-line')}>
-        <span className={cx('absolute top-1 size-5 rounded-full bg-white shadow transition-all', checked ? 'left-6' : 'left-1')} />
+        <span className={cx('absolute top-1 size-5 rounded-full bg-surface shadow transition-all', checked ? 'left-6' : 'left-1')} />
       </span>
     </button>
   )
@@ -170,8 +170,8 @@ export function Logo({ size = 40 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden>
       <defs>
         <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#FF4B72" />
-          <stop offset="1" stopColor="#FF7E5F" />
+          <stop offset="0" stopColor="var(--color-primary)" />
+          <stop offset="1" stopColor="var(--color-secondary)" />
         </linearGradient>
       </defs>
       <rect width="48" height="48" rx="14" fill="url(#lg)" />

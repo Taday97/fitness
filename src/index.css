@@ -5,7 +5,9 @@
 @import '@fontsource/plus-jakarta-sans/700.css';
 @import '@fontsource/plus-jakarta-sans/800.css';
 
-/* Sistema de diseño "Luminous Pulse" del prototipo */
+/* Sistema de diseño "Luminous Pulse" del prototipo.
+   El color principal (data-accent) y el modo claro/oscuro (data-theme) se eligen en Ajustes;
+   los tonos suaves se derivan del color principal para que todo combine. */
 @theme {
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
   --color-primary: #ff4b72;
@@ -15,11 +17,71 @@
   --color-ink: #2b2628;
   --color-muted: #7c7276;
   --color-faint: #a3989d;
-  --color-blush: #fff5f6;
-  --color-blush-2: #fff0f2;
-  --color-line: #fee8eb;
-  --color-rose-100: #ffd9dc;
+  --color-surface: #ffffff;
+  --color-page: color-mix(in srgb, var(--color-primary) 3%, #ffffff);
+  --color-blush: color-mix(in srgb, var(--color-primary) 5%, #ffffff);
+  --color-blush-2: color-mix(in srgb, var(--color-primary) 8%, #ffffff);
+  --color-line: color-mix(in srgb, var(--color-primary) 12%, #ffffff);
+  --color-rose-100: color-mix(in srgb, var(--color-primary) 20%, #ffffff);
+  --color-hero-1: color-mix(in srgb, var(--color-primary) 16%, #ffffff);
+  --color-hero-2: color-mix(in srgb, var(--color-primary) 8%, #ffffff);
+  --color-hero-3: color-mix(in srgb, var(--color-secondary) 14%, #ffffff);
   --color-ok: #22b07d;
+  /* muñeco y aparatos */
+  --color-fig-head: #2b2628;
+  --color-fig-far: color-mix(in srgb, var(--color-primary) 40%, #ffffff);
+  --color-iron: #3a3236;
+  --color-frame: #b8adb1;
+  --color-pad: color-mix(in srgb, var(--color-primary) 35%, #ffffff);
+}
+
+/* ---------- Colores principales ---------- */
+:root[data-accent='blue'] {
+  --color-primary: #3b82f6;
+  --color-primary-dark: #1d4ed8;
+  --color-secondary: #06b6d4;
+  --color-peach: #67e8f9;
+}
+:root[data-accent='green'] {
+  --color-primary: #10b981;
+  --color-primary-dark: #047857;
+  --color-secondary: #84cc16;
+  --color-peach: #bef264;
+}
+:root[data-accent='purple'] {
+  --color-primary: #8b5cf6;
+  --color-primary-dark: #6d28d9;
+  --color-secondary: #ec4899;
+  --color-peach: #f9a8d4;
+}
+:root[data-accent='orange'] {
+  --color-primary: #f97316;
+  --color-primary-dark: #c2410c;
+  --color-secondary: #f59e0b;
+  --color-peach: #fcd34d;
+}
+
+/* ---------- Modo oscuro ---------- */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-ink: #f3eff1;
+  --color-muted: #b4abb0;
+  --color-faint: #857c81;
+  --color-primary-dark: color-mix(in srgb, var(--color-primary) 70%, #ffffff);
+  --color-surface: #1c1b20;
+  --color-page: color-mix(in srgb, var(--color-primary) 3%, #111014);
+  --color-blush: color-mix(in srgb, var(--color-primary) 9%, #1c1b20);
+  --color-blush-2: color-mix(in srgb, var(--color-primary) 16%, #1c1b20);
+  --color-line: color-mix(in srgb, var(--color-primary) 14%, #2c2a31);
+  --color-rose-100: color-mix(in srgb, var(--color-primary) 28%, #1c1b20);
+  --color-hero-1: color-mix(in srgb, var(--color-primary) 30%, #1c1b20);
+  --color-hero-2: color-mix(in srgb, var(--color-primary) 14%, #1c1b20);
+  --color-hero-3: color-mix(in srgb, var(--color-secondary) 24%, #1c1b20);
+  --color-fig-head: #ece6e9;
+  --color-fig-far: color-mix(in srgb, var(--color-primary) 45%, #1c1b20);
+  --color-iron: #a79ea3;
+  --color-frame: #5f585c;
+  --color-pad: color-mix(in srgb, var(--color-primary) 40%, #1c1b20);
 }
 
 @layer base {
@@ -29,7 +91,7 @@
     min-height: 100%;
   }
   body {
-    background: #fff8f8;
+    background: var(--color-page);
     color: var(--color-ink);
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: none;
@@ -45,25 +107,25 @@
 }
 
 @utility bg-grad {
-  background-image: linear-gradient(135deg, #ff4b72 0%, #ff7e5f 100%);
+  background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
 }
 @utility text-grad {
-  background-image: linear-gradient(135deg, #ff4b72 0%, #ff7e5f 100%);
+  background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 @utility shadow-card {
-  box-shadow: 0 4px 20px -2px rgba(255, 75, 114, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 20px -2px color-mix(in srgb, var(--color-primary) 8%, transparent), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
 }
 @utility shadow-float {
-  box-shadow: 0 12px 32px -4px rgba(255, 75, 114, 0.16), 0 4px 12px -2px rgba(255, 126, 95, 0.08);
+  box-shadow: 0 12px 32px -4px color-mix(in srgb, var(--color-primary) 16%, transparent), 0 4px 12px -2px color-mix(in srgb, var(--color-secondary) 8%, transparent);
 }
 @utility shadow-glow {
-  box-shadow: 0 8px 20px -4px rgba(255, 75, 114, 0.45);
+  box-shadow: 0 8px 20px -4px color-mix(in srgb, var(--color-primary) 45%, transparent);
 }
 @utility glass {
-  background: rgba(255, 255, 255, 0.88);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
@@ -100,5 +162,5 @@
 }
 
 input[type='range'] {
-  accent-color: #ff4b72;
+  accent-color: var(--color-primary);
 }
