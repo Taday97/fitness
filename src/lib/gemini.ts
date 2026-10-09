@@ -1,5 +1,5 @@
 import type { CheckIn, Plan, Profile, Routine, RoutineItem, Session, Settings } from '../types'
-import { EXERCISES, EX_BY_ID } from '../data/exercises'
+import { EXERCISES, EX_BY_ID, canDo, usesWeight } from '../data/exercises'
 import { bmi, localNutrition, localWeeksEstimate } from './nutrition'
 import { DAYS, clamp, uid } from './utils'
 
@@ -153,19 +153,22 @@ const PLAN_SCHEMA = {
   required: ['summary', 'weeksEstimate', 'estimateExplanation', 'whyItWorks', 'nutrition', 'routines', 'tips', 'coachMessage'],
 }
 
-const SYSTEM = `Eres "Forma AI", una entrenadora personal y nutricionista deportiva experta en entrenamiento en casa.
-Hablas en español, de forma cercana, motivadora y clara. Diriges el mensaje a la usuaria por su nombre.
+const SYSTEM = `Eres "Forma AI", entrenador/a personal y nutricionista deportivo/a experto/a en entrenamiento en casa y en gimnasio, para mujeres y hombres.
+Hablas en español, de forma cercana, motivadora y clara. Te diriges a la persona por su nombre y usas el género gramatical que corresponde a su sexo.
 Tus planes son seguros, realistas y basados en evidencia (sobrecarga progresiva, déficit calórico moderado, proteína suficiente).
 No das diagnósticos médicos; si hay dolor o lesión, recomiendas precaución y consultar a un profesional.`
 
 function catalogText(p: Profile) {
-  return EXERCISES.filter((e) => !e.equipment || e.equipment === 'mat' || p.equipment.includes(e.equipment))
+  return EXERCISES.filter((e) => canDo(e, p))
     .map((e) => `- ${e.id}: ${e.name} [${e.category}, ${e.kind === 'time' ? 'por tiempo' : 'por repeticiones'}${e.perSide ? ', por lado' : ''}${e.equipment ? ', ' + e.equipment : ''}] – ${e.muscles}`)
     .join('\n')
 }
 
 function profileText(p: Profile) {
-  const eq = p.equipment.length ? p.equipment.map((e) => ({ dumbbells: `mancuernas (${p.dumbbellKg || 'peso no indicado'})`, mat: 'esterilla', chair: 'silla estable' })[e]).join(', ') : 'ninguno (solo peso corporal)'
+  const names: Record<string, string> = { dumbbells: `mancuernas (${p.dumbbellKg || 'peso no indicado'})`, mat: 'esterilla', chair: 'silla estable', gym: 'gimnasio' }
+  const eq = p.place === 'gym'
+    ? 'gimnasio completo (barras, mancuernas, bancos, poleas y máquinas)'
+    : p.equipment.length ? p.equipment.map((e) => names[e]).join(', ') : 'ninguno (solo peso corporal)'
   return `Nombre: ${p.name}
 Sexo: ${p.sex === 'female' ? 'mujer' : 'hombre'} · Edad: ${p.age} años
 Altura: ${p.heightCm} cm · Peso: ${p.weightKg} kg · IMC: ${bmi(p).toFixed(1)}
@@ -175,6 +178,7 @@ Nivel: ${p.level}
 Zonas a priorizar: ${p.focusAreas.join(', ') || 'todo el cuerpo'}
 Días de entrenamiento: ${p.trainingDays.map((d) => `${d} (${DAYS[d]})`).join(', ')}
 Minutos por sesión: ${p.minutesPerSession}
+Lugar de entrenamiento: ${p.place === 'gym' ? 'gimnasio' : 'casa'}
 Material: ${eq}
 Lesiones o limitaciones: ${p.limitations || 'ninguna'}`
 }
@@ -185,9 +189,9 @@ function rules(p: Profile, s: Settings) {
 1. Usa SOLO ejercicios del catálogo (campo exerciseId). No inventes ids.
 2. Para ejercicios "por tiempo" rellena "seconds"; para "por repeticiones" rellena "reps" (si es "por lado", las reps son por cada lado).
 3. Cada rutina tiene: warmup (3–5 ejercicios suaves de calentamiento/cardio, sets=1, por tiempo 30–60 s), main (el bloque principal) y cooldown (3–5 estiramientos, sets=1, 30–45 s).
-4. Los DESCANSOS los define la usuaria (${s.restBetweenSets} s entre series, ${s.restBetweenExercises} s entre ejercicios): NO los incluyas, pero tenlos en cuenta para que cada sesión dure como máximo ${p.minutesPerSession} minutos.
+4. Los DESCANSOS los define la persona (${s.restBetweenSets} s entre series, ${s.restBetweenExercises} s entre ejercicios): NO los incluyas, pero tenlos en cuenta para que cada sesión dure como máximo ${p.minutesPerSession} minutos.
 5. "days" usa 0=lunes … 6=domingo. Reparte las rutinas EXACTAMENTE entre estos días: ${JSON.stringify(p.trainingDays)}. Cada día de entreno tiene una sola rutina; puedes repetir una rutina en varios días. Evita trabajar el mismo grupo muscular fuerte dos días seguidos.
-6. Ajusta series y repeticiones al nivel (${p.level}). Si hay mancuernas, sugiere weightKg dentro del rango disponible.
+6. Ajusta series y repeticiones al nivel (${p.level}). En ejercicios con mancuernas o de gimnasio puedes sugerir weightKg (peso total de la barra o de cada mancuerna) prudente para su nivel; en casa, dentro del rango disponible.${p.place === 'gym' ? ' En el gimnasio prioriza los ejercicios con barra, máquinas y poleas en el bloque principal, y usa cinta o bicicleta en el calentamiento.' : ''}
 7. Respeta las lesiones/limitaciones: evita ejercicios que las agraven.
 8. Nutrición: calcula con Mifflin-St Jeor y el objetivo. Referencia calculada: ${ref.calories} kcal, ${ref.proteinG} g proteína, ${ref.carbsG} g carbohidratos, ${ref.fatG} g grasa. Nunca bajes de ${p.sex === 'male' ? 1500 : 1200} kcal. Da 3–5 consejos prácticos de comida.
 9. weeksEstimate: semanas realistas para lograr el objetivo (referencia: ~${localWeeksEstimate(p)}). Explica el cálculo en estimateExplanation (1–3 frases).
@@ -212,13 +216,13 @@ function sanitize(raw: RawPlan, p: Profile, prev?: Plan): Plan {
   const cleanItems = (items: RoutineItem[] = [], warm = false) =>
     items
       .filter((x) => EX_BY_ID[x.exerciseId])
-      .filter((x) => { const eq = EX_BY_ID[x.exerciseId].equipment; return !eq || eq === 'mat' || p.equipment.includes(eq) })
+      .filter((x) => canDo(EX_BY_ID[x.exerciseId], p))
       .map((x) => {
         const ex = EX_BY_ID[x.exerciseId]
         const out: RoutineItem = { exerciseId: x.exerciseId, sets: clamp(Math.round(x.sets || 1), 1, warm ? 2 : 6) }
         if (ex.kind === 'time') out.seconds = clamp(Math.round(x.seconds || 30), 10, 180)
         else out.reps = clamp(Math.round(x.reps || 10), 1, 50)
-        if (x.weightKg && ex.equipment === 'dumbbells') out.weightKg = clamp(x.weightKg, 0.5, 50)
+        if (x.weightKg && usesWeight(ex)) out.weightKg = clamp(x.weightKg, 0.5, 300)
         if (x.note) out.note = x.note
         return out
       })
@@ -263,7 +267,7 @@ function sanitize(raw: RawPlan, p: Profile, prev?: Plan): Plan {
 }
 
 export async function generatePlan(p: Profile, s: Settings): Promise<Plan> {
-  const prompt = `Crea un plan de entrenamiento en casa y nutrición personalizado para esta persona.
+  const prompt = `Crea un plan de entrenamiento ${p.place === 'gym' ? 'en el gimnasio' : 'en casa'} y nutrición personalizado para esta persona.
 
 PERFIL:
 ${profileText(p)}
@@ -283,7 +287,7 @@ export async function adaptPlan(
   const hist = last.map((c) => `${c.date.slice(0, 10)}: peso ${c.weightKg} kg${c.waistCm ? `, cintura ${c.waistCm} cm` : ''}, esfuerzo ${c.rpe}/10, energía ${c.energy}${c.sensations.length ? ', ' + c.sensations.join(', ') : ''}${c.notes ? ` – "${c.notes}"` : ''}`).join('\n')
   const recent = sessions.slice(-14).map((x) => `${x.date.slice(0, 10)} ${x.routineName} (${Math.round(x.durationSec / 60)} min, ${x.exercisesDone}/${x.exercisesTotal} ejercicios)`).join('\n')
   const weeks = Math.max(0, Math.floor((Date.now() - new Date(plan.createdAt).getTime()) / (7 * 864e5)))
-  const prompt = `La usuaria acaba de terminar un entrenamiento y te manda su check-in. Adapta su plan según su progreso.
+  const prompt = `La persona acaba de terminar un entrenamiento y te manda su check-in. Adapta su plan según su progreso.
 
 PERFIL (peso actualizado: ${latest?.weightKg ?? p.weightKg} kg):
 ${profileText({ ...p, weightKg: latest?.weightKg ?? p.weightKg })}

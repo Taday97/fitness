@@ -1,7 +1,8 @@
 export type Sex = 'female' | 'male'
 export type Level = 'beginner' | 'intermediate' | 'advanced'
 export type Activity = 'sedentary' | 'light' | 'moderate' | 'active'
-export type Equipment = 'dumbbells' | 'mat' | 'chair'
+export type Equipment = 'dumbbells' | 'mat' | 'chair' | 'gym' // gym = máquinas, barra, polea y banco
+export type Place = 'home' | 'gym'
 export type Category = 'warmup' | 'cardio' | 'strength' | 'core' | 'stretch'
 
 export interface Profile {
@@ -20,6 +21,7 @@ export interface Profile {
   daysPerWeek: number
   trainingDays: number[] // 0 = lunes … 6 = domingo
   minutesPerSession: number
+  place?: Place // por defecto casa (perfiles antiguos)
   equipment: Equipment[]
   dumbbellKg?: string
   focusAreas: string[]

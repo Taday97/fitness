@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowDown, ArrowUp, Plus, Search, Trash2 } from 'lucide-react'
 import { findRoutine, useRoutines, useStore } from '../store'
 import type { Routine, RoutineItem } from '../types'
-import { CATEGORY_LABEL, EXERCISES, getEx } from '../data/exercises'
+import { CATEGORY_LABEL, EXERCISES, canDo, getEx, usesWeight } from '../data/exercises'
 import Figure from '../figure/Figure'
 import { Button, Card, Chip, Field, Sheet, Stepper, TopBar, cx, inputCls } from '../components/ui'
 import { DAYS_SHORT, estimateKcal, estimateMinutes, uid } from '../lib/utils'
@@ -140,8 +140,8 @@ function ItemEditor({ it, onChange, onRemove, onMove, showRest }: {
         ) : (
           <Box label={ex.perSide ? 'Reps/lado' : 'Repeticiones'}><Stepper value={it.reps ?? 10} onChange={(reps) => onChange({ ...it, reps })} min={1} max={100} /></Box>
         )}
-        {ex.equipment === 'dumbbells' && (
-          <Box label="Peso (kg)"><Stepper value={it.weightKg ?? 2} onChange={(weightKg) => onChange({ ...it, weightKg })} step={0.5} min={0.5} max={50} /></Box>
+        {usesWeight(ex) && (
+          <Box label="Peso (kg)"><Stepper value={it.weightKg ?? (ex.equipment === 'gym' ? 20 : 2)} onChange={(weightKg) => onChange({ ...it, weightKg })} step={ex.equipment === 'gym' ? 2.5 : 0.5} min={0.5} max={300} /></Box>
         )}
         {showRest && (
           <Box label={it.restSec === undefined ? 'Descanso (auto)' : 'Descanso (s)'}>
@@ -168,8 +168,10 @@ function Picker({ open, section, onClose, onPick }: { open: boolean; section?: S
   const [cat, setCat] = useState<string>('all')
   const [preview, setPreview] = useState<string>()
   const defaultCats = section === 'warmup' ? ['warmup', 'cardio'] : section === 'cooldown' ? ['stretch'] : ['strength', 'core', 'cardio']
-  const list = EXERCISES.filter((e) => (cat === 'all' ? defaultCats.includes(e.category) : e.category === cat))
+  const list = EXERCISES.filter((e) => (cat === 'all' ? defaultCats.includes(e.category) && canDo(e, profile) : cat === 'gym' ? e.equipment === 'gym' : e.category === cat))
     .filter((e) => !q || (e.name + e.muscles).toLowerCase().includes(q.toLowerCase()))
+    // primero lo que puedes hacer con tu material
+    .sort((a, b) => Number(canDo(b, profile)) - Number(canDo(a, profile)))
   return (
     <Sheet open={open} onClose={onClose} title="Añadir ejercicio">
       <div className="space-y-3">
@@ -180,10 +182,11 @@ function Picker({ open, section, onClose, onPick }: { open: boolean; section?: S
         <div className="-mx-5 flex gap-2 overflow-x-auto px-5">
           <Chip active={cat === 'all'} onClick={() => setCat('all')} className="shrink-0">Sugeridos</Chip>
           {Object.entries(CATEGORY_LABEL).map(([k, l]) => <Chip key={k} active={cat === k} onClick={() => setCat(k)} className="shrink-0">{l}</Chip>)}
+          <Chip active={cat === 'gym'} onClick={() => setCat('gym')} className="shrink-0">🏋️ Gimnasio</Chip>
         </div>
         <div className="space-y-2">
           {list.map((e) => {
-            const missing = e.equipment && e.equipment !== 'mat' && !profile?.equipment.includes(e.equipment)
+            const missing = !canDo(e, profile)
             return (
               <div key={e.id} className="rounded-2xl border border-line">
                 <div className="flex items-center gap-3 p-2">
@@ -192,7 +195,7 @@ function Picker({ open, section, onClose, onPick }: { open: boolean; section?: S
                   </button>
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-bold">{e.name}</div>
-                    <div className="truncate text-xs text-muted">{e.muscles}{missing ? ' · necesitas ' + (e.equipment === 'dumbbells' ? 'mancuernas' : 'silla') : ''}</div>
+                    <div className="truncate text-xs text-muted">{e.muscles}{missing ? ' · necesitas ' + ({ dumbbells: 'mancuernas', chair: 'silla', gym: 'gimnasio' } as Record<string, string>)[e.equipment ?? ''] : ''}</div>
                   </div>
                   <button onClick={() => onPick(e.id)} className="bg-grad grid size-9 shrink-0 place-items-center rounded-full text-white"><Plus size={18} /></button>
                 </div>

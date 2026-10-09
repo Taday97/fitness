@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CalendarDays, ChevronDown, ChevronUp, Droplets, Pencil, Plus, RefreshCw, Sparkles, Target, Trash2, UserRound, Utensils } from 'lucide-react'
+import { CalendarDays, ChevronDown, ChevronRight, ChevronUp, Droplets, Pencil, Plus, RefreshCw, Sparkles, Target, Trash2, UserRound, Utensils } from 'lucide-react'
 import { useRoutines, useStore } from '../store'
 import type { Routine } from '../types'
 import { Button, Card, Label, TopBar, cx } from '../components/ui'
@@ -92,15 +92,19 @@ export default function PlanScreen() {
 
         {/* semana */}
         <Card>
-          <div className="mb-3 flex items-center gap-2 font-bold"><CalendarDays size={18} className="text-primary" /> Tu semana</div>
+          <div className="mb-1 flex items-center gap-2 font-bold"><CalendarDays size={18} className="text-primary" /> Tu semana</div>
+          <p className="mb-3 text-xs text-faint">Toca un día para ver todos sus ejercicios</p>
           <div className="space-y-1.5">
             {DAYS.map((d, i) => {
               const r = routines.find((x) => x.days.includes(i))
               return (
-                <div key={d} className="flex items-center gap-3 text-sm">
+                <button key={d} disabled={!r} onClick={() => r && nav(`/preview/${r.id}`)} className="flex w-full items-center gap-3 text-left text-sm">
                   <span className="w-20 font-semibold text-muted">{d}</span>
-                  <span className={cx('flex-1 rounded-lg px-3 py-1.5 font-semibold', r ? 'bg-blush-2 text-primary' : 'text-faint')}>{r ? r.name : 'Descanso'}</span>
-                </div>
+                  <span className={cx('flex flex-1 items-center justify-between rounded-lg px-3 py-1.5 font-semibold', r ? 'bg-blush-2 text-primary' : 'text-faint')}>
+                    {r ? r.name : 'Descanso'}
+                    {r && <ChevronRight size={16} />}
+                  </span>
+                </button>
               )
             })}
           </div>
@@ -159,7 +163,7 @@ function RoutineCard({ r, onInfo, onDelete }: { r: Routine; onInfo: (id: string)
   return (
     <Card className="space-y-3">
       <div className="flex items-start gap-3">
-        <button className="min-w-0 flex-1 text-left" onClick={() => setOpen(!open)}>
+        <button className="min-w-0 flex-1 text-left" onClick={() => nav(`/preview/${r.id}`)}>
           <div className="font-bold">{r.name}</div>
           <div className="text-xs text-muted">
             {r.focus} · ~{estimateMinutes(r, settings)} min · {r.days.length ? r.days.map((d) => DAYS[d].slice(0, 3)).join(', ') : 'sin días asignados'}

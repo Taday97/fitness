@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Check, ChevronRight, Clock, Dumbbell, Flame, Layers, List, Moon, Play, Sparkles } from 'lucide-react'
+import { Check, ChevronRight, Clock, Dumbbell, Eye, Flame, Layers, List, Moon, Play, Sparkles } from 'lucide-react'
 import { todayRoutine, useRoutines, useStore } from '../store'
 import type { Routine } from '../types'
 import { Button, Card, Logo, cx } from '../components/ui'
@@ -74,6 +74,7 @@ export default function Home() {
             {DAYS_SHORT.filter((_, i) => done.has(dayKey(addDays(monday, i)))).length}/{routines.length ? new Set(routines.flatMap((x) => x.days)).size : 0} entrenos
           </span>
         </div>
+        <p className="-mt-1 mb-3 text-xs text-faint">Toca un día para ver su rutina completa</p>
         <div className="flex justify-between">
           {DAYS_SHORT.map((d, i) => {
             const date = addDays(monday, i)
@@ -82,8 +83,15 @@ export default function Home() {
             const did = done.has(k)
             const train = isTrainingDay(i)
             const past = k < dayKey(new Date())
+            const dayRoutine = routines.find((x) => x.days.includes(i))
             return (
-              <div key={d} className="flex flex-col items-center gap-1.5">
+              <button
+                key={d}
+                onClick={() => dayRoutine && nav(`/preview/${dayRoutine.id}`)}
+                disabled={!dayRoutine}
+                aria-label={dayRoutine ? `Ver rutina: ${dayRoutine.name}` : 'Descanso'}
+                className="flex flex-col items-center gap-1.5 active:scale-95"
+              >
                 <span className={cx('text-xs font-bold', isToday ? 'text-primary' : 'text-faint')}>{d}</span>
                 <span
                   className={cx(
@@ -93,7 +101,7 @@ export default function Home() {
                 >
                   {did ? <Check size={18} strokeWidth={3} /> : !train ? <Moon size={14} /> : isToday ? <span className="size-2.5 rounded-full bg-primary" /> : date.getDate()}
                 </span>
-              </div>
+              </button>
             )
           })}
         </div>
@@ -123,6 +131,9 @@ export default function Home() {
             </div>
             <Button size="lg" className="w-full" onClick={() => nav(`/session/${r.id}`)}>
               <Play size={18} fill="currentColor" /> {doneToday && !chosen ? 'Entrenar otra vez' : 'Iniciar entrenamiento'}
+            </Button>
+            <Button variant="secondary" className="w-full" onClick={() => nav(`/preview/${r.id}`)}>
+              <Eye size={16} /> Ver todos los ejercicios
             </Button>
           </div>
         </div>

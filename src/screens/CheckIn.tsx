@@ -154,7 +154,7 @@ export default function CheckInScreen() {
           <Field label="Cintura (cm)"><input className={inputCls} inputMode="decimal" value={waist} onChange={(e) => setWaist(e.target.value)} placeholder="Opcional" /></Field>
           <Field label="Cadera (cm)"><input className={inputCls} inputMode="decimal" value={hip} onChange={(e) => setHip(e.target.value)} placeholder="Opcional" /></Field>
         </div>
-        <Field label="Notas para tu entrenadora IA">
+        <Field label="Notas para tu coach IA">
           <textarea className={inputCls} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ej.: las zancadas me costaron mucho, quiero más glúteo…" />
         </Field>
       </Card>

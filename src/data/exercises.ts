@@ -1,6 +1,6 @@
-import type { Exercise } from '../types'
+import type { Exercise, Profile } from '../types'
 
-// Catálogo de ejercicios para casa. Cada uno tiene su animación del muñeco.
+// Catálogo de ejercicios para casa y gimnasio. Cada uno tiene su animación del muñeco.
 // La IA solo puede elegir ejercicios de esta lista (así siempre hay animación).
 export const EXERCISES: Exercise[] = [
   // ---------- Calentamiento ----------
@@ -241,6 +241,116 @@ export const EXERCISES: Exercise[] = [
     tip: 'Codos ligeramente flexionados y peso ligero.',
   },
 
+  // ---------- Gimnasio ----------
+  {
+    id: 'treadmill_walk', name: 'Cinta: caminar inclinado', anim: 'treadmill_walk', category: 'warmup', kind: 'time', equipment: 'gym',
+    muscles: 'Piernas · Cardio suave', met: 5,
+    steps: ['Sube a la cinta y empieza a caminar a ritmo cómodo.', 'Pon una inclinación suave (3–6 %).', 'Camina erguido sin agarrarte a las barras.'],
+    tip: 'Si te agarras de la cinta, baja la velocidad: el trabajo lo deben hacer las piernas.',
+  },
+  {
+    id: 'stationary_bike', name: 'Bicicleta estática', anim: 'stationary_bike', category: 'warmup', kind: 'time', equipment: 'gym',
+    muscles: 'Piernas · Cardio', met: 6.8,
+    steps: ['Ajusta el sillín a la altura de la cadera.', 'Pedalea con resistencia suave o media.', 'Mantén el ritmo constante y la espalda estable.'],
+    tip: 'Con el pedal abajo, la rodilla debe quedar ligeramente flexionada.',
+  },
+  {
+    id: 'barbell_squat', name: 'Sentadilla con barra', anim: 'barbell_squat', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Cuádriceps · Glúteos · Core', met: 6,
+    steps: ['Coloca la barra sobre la parte alta de la espalda, no sobre el cuello.', 'Pies al ancho de hombros, pecho arriba y abdomen firme.', 'Baja llevando la cadera atrás hasta que los muslos queden paralelos.', 'Sube empujando el suelo con todo el pie.'],
+    tip: 'Usa los seguros del rack. Empieza con poco peso hasta dominar la técnica.',
+  },
+  {
+    id: 'barbell_deadlift', name: 'Peso muerto con barra', anim: 'barbell_deadlift', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Glúteos · Isquios · Espalda', met: 6,
+    steps: ['Barra sobre la mitad del pie, agárrala por fuera de las rodillas.', 'Espalda recta, hombros encima de la barra.', 'Empuja el suelo y sube la barra pegada a las piernas.', 'Baja controlando, llevando la cadera atrás.'],
+    tip: 'La espalda no se redondea nunca. Si se curva, baja el peso.',
+  },
+  {
+    id: 'bench_press', name: 'Press de banca con barra', anim: 'bench_press', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Pecho · Tríceps · Hombros', met: 5,
+    steps: ['Túmbate con los ojos bajo la barra y los pies firmes en el suelo.', 'Agarra la barra algo más ancho que los hombros.', 'Baja la barra controlada hasta rozar el pecho.', 'Empuja hacia arriba hasta estirar los brazos.'],
+    tip: 'Con peso alto, pide que alguien te ayude (que te haga de "spotter").',
+  },
+  {
+    id: 'db_bench_press', name: 'Press de banca con mancuernas', anim: 'db_bench_press', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Pecho · Tríceps · Hombros', met: 5,
+    steps: ['Túmbate en el banco con una mancuerna en cada mano.', 'Baja las mancuernas a los lados del pecho, codos a unos 45°.', 'Empuja hacia arriba juntándolas sin chocarlas.'],
+    tip: 'Más fácil de controlar que la barra: buena opción para empezar.',
+  },
+  {
+    id: 'barbell_ohp', name: 'Press militar con barra', anim: 'barbell_ohp', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Hombros · Tríceps · Core', met: 5,
+    steps: ['De pie, barra apoyada a la altura de las clavículas.', 'Aprieta glúteos y abdomen.', 'Empuja la barra por encima de la cabeza hasta estirar los brazos.', 'Baja controlando hasta las clavículas.'],
+    tip: 'No arquees la zona lumbar: si pasa, el peso es excesivo.',
+  },
+  {
+    id: 'lat_pulldown', name: 'Jalón al pecho', anim: 'lat_pulldown', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Espalda · Bíceps', met: 5,
+    steps: ['Siéntate con los muslos bajo los rodillos.', 'Agarra la barra algo más ancho que los hombros.', 'Tira de la barra hasta la parte alta del pecho, llevando los codos abajo.', 'Sube controlando sin soltar la tensión.'],
+    tip: 'Piensa en meter los codos en los bolsillos traseros. No tires con impulso.',
+  },
+  {
+    id: 'seated_cable_row', name: 'Remo en polea baja', anim: 'seated_cable_row', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Espalda media · Bíceps', met: 5,
+    steps: ['Siéntate con los pies en la plataforma y rodillas un poco flexionadas.', 'Espalda recta, agarra el maneral.', 'Tira hacia el abdomen juntando las escápulas.', 'Vuelve estirando los brazos de forma controlada.'],
+    tip: 'El torso casi no se mueve: el trabajo lo hace la espalda, no el balanceo.',
+  },
+  {
+    id: 'leg_press', name: 'Prensa de piernas', anim: 'leg_press', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Cuádriceps · Glúteos', met: 5.5,
+    steps: ['Espalda bien apoyada en el respaldo.', 'Pies en la plataforma al ancho de caderas.', 'Baja flexionando las rodillas hacia el pecho.', 'Empuja sin bloquear del todo las rodillas.'],
+    tip: 'Si la parte baja de la espalda se despega del respaldo, no bajes tanto.',
+  },
+  {
+    id: 'leg_extension', name: 'Extensión de cuádriceps', anim: 'leg_extension', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Cuádriceps', met: 4,
+    steps: ['Ajusta la máquina: rodilla alineada con el eje y rodillo sobre los tobillos.', 'Estira las piernas hasta arriba.', 'Baja despacio.'],
+    tip: 'Aguanta un segundo arriba apretando el cuádriceps.',
+  },
+  {
+    id: 'leg_curl', name: 'Curl femoral tumbado', anim: 'leg_curl', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Isquiotibiales', met: 4,
+    steps: ['Túmbate boca abajo con el rodillo detrás de los tobillos.', 'Flexiona las rodillas llevando los talones hacia los glúteos.', 'Baja controlando.'],
+    tip: 'No levantes la cadera del banco al subir.',
+  },
+  {
+    id: 'pullups', name: 'Dominadas (o asistidas)', anim: 'pullups', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Espalda · Bíceps · Core', met: 8,
+    steps: ['Cuélgate de la barra con las manos algo más abiertas que los hombros.', 'Tira llevando el pecho hacia la barra.', 'Sube hasta que la barbilla pase la barra.', 'Baja controlando hasta estirar los brazos.'],
+    tip: 'Si aún no te salen, usa la máquina de dominadas asistidas o una banda elástica.',
+  },
+  {
+    id: 'hanging_knee_raise', name: 'Elevación de rodillas colgado', anim: 'hanging_knee_raise', category: 'core', kind: 'reps', equipment: 'gym',
+    muscles: 'Abdomen · Flexores de cadera', met: 4,
+    steps: ['Cuélgate de la barra con los brazos estirados.', 'Sube las rodillas hacia el pecho.', 'Baja despacio sin balancearte.'],
+    tip: 'Evita el balanceo: si te cuesta, hazlo en la silla romana con apoyo de antebrazos.',
+  },
+  {
+    id: 'barbell_row', name: 'Remo con barra', anim: 'barbell_row', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Espalda · Bíceps · Lumbares', met: 5.5,
+    steps: ['Inclina el torso hacia delante con la espalda recta y rodillas suaves.', 'Agarra la barra con los brazos estirados.', 'Tira de la barra hacia el ombligo.', 'Baja controlando.'],
+    tip: 'Mantén la inclinación del torso fija durante toda la serie.',
+  },
+  {
+    id: 'cable_pushdown', name: 'Extensión de tríceps en polea', anim: 'cable_pushdown', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Tríceps', met: 4,
+    steps: ['De pie frente a la polea alta, agarra la barra o cuerda.', 'Codos pegados al cuerpo.', 'Estira los brazos hacia abajo.', 'Sube controlando hasta la altura del pecho.'],
+    tip: 'Solo se mueven los antebrazos: los codos no se separan del cuerpo.',
+  },
+  {
+    id: 'barbell_hip_thrust', name: 'Hip thrust con barra', anim: 'barbell_hip_thrust', category: 'strength', kind: 'reps', equipment: 'gym',
+    muscles: 'Glúteos · Isquios', met: 5,
+    steps: ['Apoya la parte alta de la espalda en el banco y la barra sobre la cadera (con almohadilla).', 'Pies firmes al ancho de caderas.', 'Sube la cadera hasta alinear rodillas, cadera y hombros.', 'Aprieta glúteos arriba y baja controlando.'],
+    tip: 'Mira al frente (barbilla hacia el pecho) para no arquear la espalda.',
+  },
+  {
+    id: 'bulgarian_split_squat', name: 'Sentadilla búlgara', anim: 'bulgarian_split_squat', category: 'strength', kind: 'reps', perSide: true, equipment: 'gym',
+    muscles: 'Glúteos · Cuádriceps', met: 5.5,
+    steps: ['De espaldas a un banco, apoya el empeine de un pie en él.', 'Con mancuernas a los lados, baja flexionando la pierna delantera.', 'Sube empujando con el talón delantero.', 'Termina las repeticiones y cambia de pierna.'],
+    tip: 'Inclina un poco el torso hacia delante para trabajar más el glúteo.',
+  },
+
   // ---------- Estiramientos ----------
   {
     id: 'stretch_quad', name: 'Estiramiento de cuádriceps', anim: 'stretch_quad', category: 'stretch', kind: 'time', perSide: true,
@@ -249,7 +359,7 @@ export const EXERCISES: Exercise[] = [
     tip: 'Apóyate en una pared si pierdes el equilibrio.',
   },
   {
-    id: 'stretch_hamstring', name: 'Estiramiento de isquios sentada', anim: 'stretch_hamstring', category: 'stretch', kind: 'time', equipment: 'mat',
+    id: 'stretch_hamstring', name: 'Estiramiento de isquios en el suelo', anim: 'stretch_hamstring', category: 'stretch', kind: 'time', equipment: 'mat',
     muscles: 'Isquiotibiales · Espalda', met: 2.3,
     steps: ['Sentada con las piernas estiradas.', 'Inclínate hacia delante desde la cadera.', 'Lleva las manos hacia los pies y respira.'],
     tip: 'Espalda larga; no importa no llegar a los pies.',
@@ -270,7 +380,7 @@ export const EXERCISES: Exercise[] = [
     id: 'cobra', name: 'Esfinge / cobra suave', anim: 'cobra', category: 'stretch', kind: 'time', equipment: 'mat',
     muscles: 'Abdomen · Espalda', met: 2,
     steps: ['Boca abajo con antebrazos apoyados.', 'Eleva el pecho alargando la columna.', 'Mantén con hombros relajados.'],
-    tip: 'Sin dolor lumbar: sube solo hasta donde estés cómoda.',
+    tip: 'Sin dolor lumbar: sube solo hasta donde no notes molestia.',
   },
   {
     id: 'hip_flexor_stretch', name: 'Estiramiento de flexores de cadera', anim: 'hip_flexor_stretch', category: 'stretch', kind: 'time', perSide: true, equipment: 'mat',
@@ -293,6 +403,16 @@ export const EXERCISES: Exercise[] = [
 ]
 
 export const EX_BY_ID: Record<string, Exercise> = Object.fromEntries(EXERCISES.map((e) => [e.id, e]))
+
+/** ¿Se puede hacer con el material de esta persona? En el gimnasio hay de todo. */
+export function canDo(e: Exercise, p?: Pick<Profile, 'place' | 'equipment'>): boolean {
+  if (!e.equipment || e.equipment === 'mat') return true
+  if (p?.place === 'gym') return true
+  return e.equipment !== 'gym' && !!p?.equipment.includes(e.equipment)
+}
+
+/** Ejercicios con carga externa (se puede indicar el peso) */
+export const usesWeight = (e: Exercise) => e.equipment === 'dumbbells' || e.equipment === 'gym'
 
 export const getEx = (id: string): Exercise =>
   EX_BY_ID[id] ?? { ...EXERCISES[0], id, name: id }

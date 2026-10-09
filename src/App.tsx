@@ -9,6 +9,7 @@ import SettingsScreen from './screens/Settings'
 import SessionScreen from './screens/Session'
 import CheckInScreen from './screens/CheckIn'
 import RoutineEditor from './screens/RoutineEditor'
+import RoutinePreview from './screens/RoutinePreview'
 import { cx } from './components/ui'
 
 function BottomNav() {
@@ -69,6 +70,7 @@ function Shell() {
             <Route path="/session/:id" element={<SessionScreen />} />
             <Route path="/checkin/:sessionId" element={<CheckInScreen />} />
             <Route path="/routine/:id" element={<RoutineEditor />} />
+            <Route path="/preview/:id" element={<RoutinePreview />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
         )}

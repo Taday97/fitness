@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, ChevronLeft, ExternalLink, KeyRound, Sparkles } from 'lucide-react'
 import { useStore } from '../store'
-import type { Activity, Equipment, Level, Profile } from '../types'
+import type { Activity, Equipment, Level, Profile, Sex } from '../types'
 import { Button, Card, Chip, Field, Label, Logo, Stepper, cx, inputCls } from '../components/ui'
 import Figure from '../figure/Figure'
 import { GOALS, bmi } from '../lib/nutrition'
@@ -10,17 +10,19 @@ import { DAYS_SHORT } from '../lib/utils'
 import { generatePlan } from '../lib/gemini'
 import { basicPlan } from '../lib/basicPlan'
 
-const FOCUS = ['Glúteos', 'Piernas', 'Abdomen', 'Brazos', 'Espalda', 'Todo el cuerpo']
-const LEVELS: { v: Level; l: string; d: string }[] = [
+const FOCUS = ['Glúteos', 'Piernas', 'Abdomen', 'Brazos', 'Espalda', 'Pecho', 'Todo el cuerpo']
+// femenino / masculino según el sexo del perfil
+const gx = (sex: Sex, f: string, m: string) => (sex === 'male' ? m : f)
+const LEVELS = (s: Sex): { v: Level; l: string; d: string }[] => [
   { v: 'beginner', l: 'Principiante', d: 'Empiezo o vuelvo' },
-  { v: 'intermediate', l: 'Intermedia', d: 'Entreno a veces' },
-  { v: 'advanced', l: 'Avanzada', d: 'Entreno a menudo' },
+  { v: 'intermediate', l: gx(s, 'Intermedia', 'Intermedio'), d: 'Entreno a veces' },
+  { v: 'advanced', l: gx(s, 'Avanzada', 'Avanzado'), d: 'Entreno a menudo' },
 ]
-const ACTIVITIES: { v: Activity; l: string; d: string }[] = [
-  { v: 'sedentary', l: 'Sedentaria', d: 'Trabajo sentada' },
+const ACTIVITIES = (s: Sex): { v: Activity; l: string; d: string }[] => [
+  { v: 'sedentary', l: gx(s, 'Sedentaria', 'Sedentario'), d: gx(s, 'Trabajo sentada', 'Trabajo sentado') },
   { v: 'light', l: 'Ligera', d: 'Camino algo' },
   { v: 'moderate', l: 'Moderada', d: 'De pie a menudo' },
-  { v: 'active', l: 'Muy activa', d: 'Trabajo físico' },
+  { v: 'active', l: gx(s, 'Muy activa', 'Muy activo'), d: 'Trabajo físico' },
 ]
 const LOADING_MSGS = [
   'Analizando tus medidas…',
@@ -32,7 +34,7 @@ const LOADING_MSGS = [
 
 const blank = (): Profile => ({
   name: '', sex: 'female', age: 28, heightCm: 163, weightKg: 62, activity: 'light', goal: 'Tonificar',
-  level: 'beginner', daysPerWeek: 3, trainingDays: [0, 2, 4], minutesPerSession: 30, equipment: ['mat'],
+  level: 'beginner', daysPerWeek: 3, trainingDays: [0, 2, 4], minutesPerSession: 30, place: 'home', equipment: ['mat'],
   focusAreas: ['Glúteos', 'Abdomen'], limitations: '', createdAt: new Date().toISOString(),
 })
 
@@ -109,7 +111,7 @@ export default function Onboarding() {
           <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-blush-2 px-3 py-1 text-xs font-bold text-primary">
             <Sparkles size={14} /> GEMINI TRABAJANDO
           </div>
-          <h2 className="text-2xl font-extrabold">Creando tu plan, {p.name || 'guapa'}</h2>
+          <h2 className="text-2xl font-extrabold">Creando tu plan{p.name ? `, ${p.name}` : ''}</h2>
           <p className="mt-2 h-6 text-muted">{LOADING_MSGS[msg]}</p>
         </div>
       </div>
@@ -142,7 +144,7 @@ export default function Onboarding() {
             <Logo size={64} />
             <div>
               <h1 className="text-[32px] leading-tight font-extrabold">
-                Tu entrenadora <span className="text-grad">con IA</span>, en casa
+                Tu coach <span className="text-grad">con IA</span>, en casa o en el gym
               </h1>
               <p className="mt-3 text-muted">
                 Rutinas guiadas con voz, un plan de nutrición a tu medida y ajustes cada día según tu progreso.
@@ -211,7 +213,7 @@ export default function Onboarding() {
             <div>
               <Label>Actividad diaria (sin contar el entreno)</Label>
               <div className="grid grid-cols-2 gap-2">
-                {ACTIVITIES.map((a) => (
+                {ACTIVITIES(p.sex).map((a) => (
                   <Choice key={a.v} active={p.activity === a.v} onClick={() => up({ activity: a.v })} title={a.l} desc={a.d} />
                 ))}
               </div>
@@ -258,7 +260,7 @@ export default function Onboarding() {
             <div>
               <Label>Tu nivel</Label>
               <div className="grid grid-cols-3 gap-2">
-                {LEVELS.map((l) => (
+                {LEVELS(p.sex).map((l) => (
                   <Choice key={l.v} active={p.level === l.v} onClick={() => up({ level: l.v })} title={l.l} desc={l.d} />
                 ))}
               </div>
@@ -268,7 +270,19 @@ export default function Onboarding() {
 
         {step === 4 && (
           <div className="space-y-5">
-            <Title t="Tu entrenamiento" s="Todo en casa. Elige días, tiempo y el material que tienes." />
+            <Title t="Tu entrenamiento" s="Elige dónde entrenas, qué días y cuánto tiempo." />
+            <div>
+              <Label>¿Dónde entrenas?</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {([['home', '🏠', 'En casa'], ['gym', '🏋️', 'En el gimnasio']] as const).map(([v, e, l]) => (
+                  <button key={v} onClick={() => up({ place: v })}
+                    className={cx('flex flex-col items-center gap-1 rounded-2xl border-2 bg-white p-3 text-sm font-bold', (p.place ?? 'home') === v ? 'border-primary text-primary' : 'border-line text-muted')}>
+                    <span className="text-2xl">{e}</span>{l}
+                  </button>
+                ))}
+              </div>
+              {p.place === 'gym' && <p className="mt-2 text-xs text-muted">Usaremos barras, mancuernas, poleas y máquinas, además de cinta o bici para calentar.</p>}
+            </div>
             <div>
               <Label right={<span className="text-xs font-bold text-primary">{p.trainingDays.length} días/semana</span>}>Días que entrenas</Label>
               <div className="flex justify-between gap-1">
@@ -291,7 +305,7 @@ export default function Onboarding() {
                 ))}
               </div>
             </div>
-            <div>
+            {p.place !== 'gym' && <div>
               <Label>Material que tienes en casa</Label>
               <div className="space-y-2">
                 {([
@@ -316,7 +330,7 @@ export default function Onboarding() {
                 })}
               </div>
               <p className="mt-2 text-xs text-muted">Sin material también funciona: usaremos tu propio peso.</p>
-            </div>
+            </div>}
             <Field label="Lesiones o molestias (opcional)">
               <textarea className={inputCls} rows={2} value={p.limitations} onChange={(e) => up({ limitations: e.target.value })} placeholder="Ej.: me molesta la rodilla derecha al saltar" />
             </Field>

@@ -32,6 +32,6 @@ export function localAdapt(plan: Plan, p: Profile, c: CheckIn): Plan {
     nutrition,
     updatedAt: new Date().toISOString(),
     lastAdjustments: adjustments,
-    coachMessage: easy ? '¡Vas sobrada! Subimos un poquito la exigencia.' : hard ? 'Hoy fue duro, ¡y lo terminaste! Ajustamos para que recuperes.' : '¡Constancia perfecta! Sigue así.',
+    coachMessage: easy ? '¡Te ha resultado fácil! Subimos un poquito la exigencia.' : hard ? 'Hoy fue duro, ¡y lo terminaste! Ajustamos para que recuperes.' : '¡Constancia perfecta! Sigue así.',
   }
 }

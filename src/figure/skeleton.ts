@@ -13,11 +13,18 @@ export interface Pose {
   sh: Pair // espinilla (rodilla -> tobillo)
   foot?: Pair // dirección del pie (por defecto sh + 90)
   lift?: number // elevar del suelo (saltos)
+  /** altura extra sobre el suelo (tumbado en banco, sentado en máquina) */
+  raise?: number
 }
 
 export type View = 'side' | 'front'
-export type Anchor = 'feet' | 'hands' | 'hip' | 'nearFoot' | 'farFoot'
-export type Prop = 'dumbbells' | 'dumbbell' | 'chair' | 'wall' | 'mat'
+// hang = manos fijas en el aire (dominadas): el cuerpo sube y baja colgado
+export type Anchor = 'feet' | 'hands' | 'hip' | 'nearFoot' | 'farFoot' | 'hang'
+export type Prop =
+  | 'dumbbells' | 'dumbbell' | 'chair' | 'wall' | 'mat'
+  // gimnasio
+  | 'barbell' | 'barbellHip' | 'barbellBack' | 'bench' | 'benchBack' | 'benchFoot' | 'cableHigh' | 'cableLow'
+  | 'pullupBar' | 'seat' | 'legPress' | 'legExtPad' | 'legCurlPad' | 'treadmill' | 'bike'
 
 export interface Frame {
   pose: Pose
@@ -31,9 +38,15 @@ export interface Anim {
   frames: Frame[]
   /** fotogramas por repetición (para contar en voz alta); por defecto todos */
   repFrames?: number
+  /** cadera a altura fija (sentado en máquina, tumbado en banco): no se apoya en el punto más bajo */
+  hipY?: number
+  /** posición de la polea (coordenadas del dibujo) para los ejercicios de cable */
+  pulley?: Pt
 }
 
 export const L = { torso: 50, head: 9, ua: 25, fa: 23, th: 34, sh: 32, foot: 9 }
+/** altura de la barra de dominadas */
+export const HANG_Y = 190
 
 export type Pt = { x: number; y: number }
 
@@ -56,7 +69,7 @@ const add = (p: Pt, a: number, len: number, mirror = false): Pt => ({
   y: p.y + Math.cos(rad(a)) * len,
 })
 
-export function solve(p: Pose, view: View, anchor: Anchor = 'feet'): Joints {
+export function solve(p: Pose, view: View, anchor: Anchor = 'feet', hipY?: number): Joints {
   const hip: Pt = { x: 0, y: 0 }
   const neck = add(hip, p.torso, L.torso)
   const shoulderBase = add(hip, p.torso, L.torso - 3)
@@ -88,13 +101,20 @@ export function solve(p: Pose, view: View, anchor: Anchor = 'feet'): Joints {
   const pts = allPoints(j)
   // +5 = medio grosor del trazo, para que el cuerpo "apoye" sobre el suelo
   const maxY = Math.max(...pts.map((q) => q.y + 5), head.y + L.head)
-  let dy = -maxY - (p.lift ?? 0)
+  let dy = -maxY - (p.lift ?? 0) - (p.raise ?? 0)
   let dx = 0
   const avg = (a: Pt, b: Pt) => (a.x + b.x) / 2
-  if (anchor === 'feet') dx = -avg(ankle[0], ankle[1])
+  if (hipY !== undefined) {
+    dx = 0
+    dy = -hipY - (p.raise ?? 0)
+  } else if (anchor === 'feet') dx = -avg(ankle[0], ankle[1])
   else if (anchor === 'hands') dx = -avg(hand[0], hand[1])
   else if (anchor === 'nearFoot') dx = -ankle[0].x
   else if (anchor === 'farFoot') dx = -ankle[1].x
+  else if (anchor === 'hang') {
+    dx = -avg(hand[0], hand[1])
+    dy = -HANG_Y - (hand[0].y + hand[1].y) / 2
+  }
   return translate(j, dx, dy)
 }
 
@@ -130,6 +150,7 @@ export function lerpPose(a: Pose, b: Pose, t: number): Pose {
     sh: lerpPair(a.sh, b.sh, t),
     foot: a.foot || b.foot ? lerpPair(fa, fb, t) : undefined,
     lift: lerp(a.lift ?? 0, b.lift ?? 0, t),
+    raise: lerp(a.raise ?? 0, b.raise ?? 0, t),
   }
 }
 
@@ -160,7 +181,7 @@ export function bounds(anim: Anim) {
   const steps = 24
   const total = cycleMs(anim)
   for (let s = 0; s < steps; s++) {
-    const j = solve(poseAt(anim, (total * s) / steps), anim.view, anim.anchor)
+    const j = solve(poseAt(anim, (total * s) / steps), anim.view, anim.anchor, anim.hipY)
     for (const p of [...allPoints(j)]) {
       minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); minY = Math.min(minY, p.y)
     }
@@ -169,5 +190,9 @@ export function bounds(anim: Anim) {
   }
   if (anim.props?.includes('wall')) minX -= 10
   if (anim.props?.includes('chair')) minX -= 40
+  if (anim.props?.includes('pullupBar')) minY = Math.min(minY, -HANG_Y - 12)
+  if (anim.pulley) {
+    minX = Math.min(minX, anim.pulley.x - 8); maxX = Math.max(maxX, anim.pulley.x + 8); minY = Math.min(minY, anim.pulley.y - 10)
+  }
   return { minX, maxX, minY }
 }
