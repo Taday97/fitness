@@ -33,11 +33,11 @@ async function call(path: string, key: string, body?: unknown) {
   const data = await res.json().catch(() => ({}))
   if (!res.ok) {
     const msg: string = data?.error?.message ?? res.statusText
-    if (res.status === 429) throw new GeminiError('Has llegado al límite gratuito de Gemini por ahora. Espera un minuto y vuelve a intentarlo.')
+    if (res.status === 429) throw new GeminiError('Has llegado al límite gratuito de Gemini por ahora. Espera un minuto y vuelve a intentarlo.', 429)
     if (res.status === 400 && /api key/i.test(msg)) throw new GeminiError('La clave de Gemini no es válida. Revísala en Ajustes.')
     if (res.status === 403) throw new GeminiError('La clave no tiene permiso para usar Gemini. Crea una nueva en Google AI Studio.')
     if (res.status === 404) throw new GeminiError('Ese modelo de Gemini no está disponible para tu clave. Elige otro en Ajustes.', 404)
-    if (res.status === 503) throw new GeminiError('Gemini está saturado ahora mismo. Inténtalo de nuevo en unos segundos.')
+    if (res.status === 503 || res.status === 500) throw new GeminiError('Gemini está saturado ahora mismo. Inténtalo de nuevo en unos minutos.', res.status)
     throw new GeminiError(`Error de Gemini (${res.status}): ${msg}`, res.status)
   }
   return data
@@ -53,12 +53,28 @@ export async function listModels(key: string): Promise<string[]> {
     .sort((a: string, b: string) => (b.includes('flash') ? 1 : 0) - (a.includes('flash') ? 1 : 0) || b.localeCompare(a))
 }
 
-/** El mejor modelo para la app: Flash estable (ni preview ni lite) de la versión más alta. */
-export function pickModel(models: string[]): string | undefined {
+/** Modelos de mejor a peor para la app: Flash estable (ni preview ni lite) de la versión más alta primero. */
+export function rankModels(models: string[]): string[] {
   const ver = (m: string) => parseFloat(m.match(/gemini-(d+(?:.d+)?)/)?.[1] ?? '0')
   const score = (m: string) =>
     (m.includes('flash') ? 4 : 0) + (/preview|exp/.test(m) ? 0 : 2) + (m.includes('lite') ? 0 : 1)
-  return [...models].sort((a, b) => score(b) - score(a) || ver(b) - ver(a))[0]
+  return [...models].sort((a, b) => score(b) - score(a) || ver(b) - ver(a))
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+// Saturación (503/500) o cupo del modelo (429): vale la pena reintentar o probar otro modelo
+const isBusy = (e: unknown) => e instanceof GeminiError && [429, 500, 503].includes(e.status ?? 0)
+
+/** Llama a un modelo reintentando un par de veces si Gemini está saturado. */
+async function callModel(model: string, key: string, body: unknown, retries: number) {
+  for (let i = 0; ; i++) {
+    try {
+      return await call(`models/${model}:generateContent`, key, body)
+    } catch (e) {
+      if (i >= retries || !(e instanceof GeminiError) || (e.status !== 503 && e.status !== 500)) throw e
+      await sleep(2000 * (i + 1) + Math.random() * 1000)
+    }
+  }
 }
 
 async function generateJSON<T>(s: Settings, system: string, prompt: string, schema: object): Promise<T> {
@@ -71,14 +87,25 @@ async function generateJSON<T>(s: Settings, system: string, prompt: string, sche
   const model = s.model || DEFAULT_MODEL
   let data
   try {
-    data = await call(`models/${model}:generateContent`, s.apiKey, body)
+    data = await callModel(model, s.apiKey, body, 2)
   } catch (e) {
-    // Google retira modelos con el tiempo: si el elegido ya no existe, usamos el mejor disponible para esta clave
-    if (!(e instanceof GeminiError) || e.status !== 404) throw e
-    const fallback = pickModel((await listModels(s.apiKey)).filter((m) => m !== model))
-    if (!fallback) throw e
-    data = await call(`models/${fallback}:generateContent`, s.apiKey, body)
-    onModelResolved(fallback)
+    // Si el modelo ya no existe (Google los retira) o sigue saturado, probamos los mejores disponibles para esta clave
+    const missing = e instanceof GeminiError && e.status === 404
+    if (!missing && !isBusy(e)) throw e
+    const alternatives = rankModels((await listModels(s.apiKey).catch(() => [])).filter((m) => m !== model)).slice(0, 3)
+    let lastErr = e
+    for (const alt of alternatives) {
+      try {
+        data = await callModel(alt, s.apiKey, body, 1)
+        // Solo se guarda si el anterior ya no existe; la saturación es pasajera
+        if (missing) onModelResolved(alt)
+        break
+      } catch (e2) {
+        lastErr = e2
+        if (!isBusy(e2) && !(e2 instanceof GeminiError && e2.status === 404)) throw e2
+      }
+    }
+    if (!data) throw lastErr
   }
   const text: string | undefined = data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('')
   if (!text) throw new GeminiError('Gemini no devolvió respuesta. Inténtalo de nuevo.')
